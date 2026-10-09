@@ -1,0 +1,27 @@
+# 依赖
+node_modules/
+package-lock.json
+
+# 环境与密钥（绝不能提交）
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 运行数据（含链上记录，不入库）
+server/launches.json
+server/donations.json
+
+# 打包与临时文件
+*.tar.gz
+*.zip
+*.log
+.DS_Store
+Thumbs.db
+
+# 构建产物
+.next/
+out/
+dist/
+build/

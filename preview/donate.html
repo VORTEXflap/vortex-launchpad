@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>开发者互助基金 — Vortex</title>
+<link rel="icon" type="image/png" href="logo.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --accent: #E0A000; }
+  body { background:#070808; color:#F9FAFB;
+         font-family:"Noto Sans SC","Space Grotesk",Arial,"PingFang SC","Microsoft YaHei",sans-serif; }
+  ::selection { background:var(--accent); color:#000; }
+  .glow { background: radial-gradient(ellipse 55% 42% at 50% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 72%); }
+</style>
+</head>
+<body class="min-h-screen antialiased">
+
+<!-- 顶部导航 -->
+<nav class="mx-auto flex h-16 max-w-[1440px] items-center gap-6 px-4 md:px-8">
+  <a href="index.html" class="flex items-center gap-2">
+    <img src="logo.png" alt="VORTEX" class="h-8 w-8 object-contain"/>
+    <span class="text-lg font-bold tracking-widest">VORTEX</span>
+  </a>
+  <div class="hidden items-center gap-5 text-sm text-gray-300 md:flex">
+    <a href="index.html" class="hover:text-white">首页</a>
+    <a href="docs.html" class="hover:text-white">文档</a>
+    <a href="donate.html" style="color:var(--accent)">捐赠</a>
+  </div>
+  <div class="ml-auto flex items-center gap-2">
+    <button class="flex items-center gap-1.5 rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm">
+      <span class="flex h-4 w-4 items-center justify-center rounded-full bg-[#F0B90B] text-[9px] font-bold text-black">B</span>
+      BSC
+    </button>
+    <a href="https://github.com/VORTEXflap/vortex-launchpad" target="_blank" rel="noreferrer" title="GitHub" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#303236] bg-[#070808] text-gray-300 transition hover:border-[#E0A000] hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+    </a>
+    <a href="https://x.com/Vortex_flap" target="_blank" rel="noreferrer" title="X" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#303236] bg-[#070808] text-gray-300 transition hover:border-[#E0A000] hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <button id="connectBtn" class="rounded-md px-3 py-1.5 text-sm font-semibold text-black" style="background:var(--accent)">连接钱包</button>
+  </div>
+</nav>
+
+<div class="glow">
+<header class="mx-auto max-w-[960px] px-4 pb-8 pt-12 text-center md:px-8">
+  <p class="text-xs font-semibold uppercase tracking-[0.35em]" style="color:var(--accent)">Vortex Dev Fund</p>
+  <h1 class="mt-4 text-4xl font-black tracking-tight md:text-5xl">开发者互助基金</h1>
+  <p class="mt-4 text-base text-gray-400">今天你被扶持，明天你扶持别人。</p>
+</header>
+</div>
+
+<main class="mx-auto max-w-[560px] px-4 pb-16 md:px-8">
+
+  <div class="rounded-xl border border-dashed p-6" style="border-color:var(--accent)">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-bold">自愿捐赠</h2>
+      <span class="rounded border px-2 py-0.5 text-[10px]" style="border-color:var(--accent);color:var(--accent)">自愿 · 公开 · 零强制</span>
+    </div>
+    <p class="mt-4 text-sm leading-relaxed text-gray-300">每一位成功上线的 DEV，都可以自愿留下一份发射成本，让下一位创业者继续零成本出发。</p>
+    <p class="mt-4 text-[11px] leading-relaxed text-gray-500">捐款直接进入发射金库，用于代付后续创业者的 FLAP 创建费。全部链上公开可查，不强制、不抽成、不设最低门槛，也不承诺任何回报。</p>
+
+    <div class="mt-5 rounded-md border border-[#303236] bg-[#070808] px-3.5 py-3">
+      <p class="text-[11px] text-gray-500">基金收款地址（BSC）</p>
+      <div class="mt-1 flex items-center justify-between gap-2">
+        <span id="fundAddr" class="min-w-0 break-all text-xs text-gray-400">加载中…</span>
+        <button id="copyFundBtn" type="button" class="shrink-0 rounded-md border border-[#303236] px-2 py-1 text-[11px] text-gray-400 hover:border-[#E0A000]">复制地址</button>
+      </div>
+    </div>
+
+    <label class="mt-5 block">
+      <span class="text-xs text-gray-400">项目名称（荣誉墙展示）*</span>
+      <input id="donorName" maxlength="32" class="mt-1.5 w-full rounded-md border border-[#303236] bg-[#070808] px-3.5 py-2.5 text-sm outline-none focus:border-[#E0A000]" placeholder="你的代币或项目名，如：币安公主"/>
+    </label>
+
+    <label class="mt-4 block cursor-pointer">
+      <span class="text-xs text-gray-400">项目 LOGO（选填，不上传则用首字母头像）</span>
+      <span id="donorLogoBox" class="mt-1.5 flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-[#303236] bg-[#070808] text-center text-[10px] text-gray-500 transition hover:border-[#E0A000]">上传 PNG</span>
+      <input id="donorLogoInput" type="file" accept="image/*" class="hidden" />
+    </label>
+
+    <div class="mt-4 flex flex-wrap gap-2" id="donatePresets">
+      <button type="button" data-amt="0.01" class="donate-amt rounded-[2px] border px-3 py-1.5 text-xs" style="background:rgba(224,160,0,0.05);border-color:var(--accent);color:var(--accent)">0.01 BNB</button>
+      <button type="button" data-amt="0.05" class="donate-amt rounded-[2px] border border-[#303236] px-3 py-1.5 text-xs text-gray-300">0.05 BNB</button>
+      <button type="button" data-amt="0.1" class="donate-amt rounded-[2px] border border-[#303236] px-3 py-1.5 text-xs text-gray-300">0.1 BNB</button>
+      <button type="button" data-amt="0.5" class="donate-amt rounded-[2px] border border-[#303236] px-3 py-1.5 text-xs text-gray-300">0.5 BNB</button>
+    </div>
+
+    <button id="donateBtn" type="button" class="mt-5 w-full rounded-md py-3 text-sm font-bold text-black transition" style="background:var(--accent)">捐款支持</button>
+    <p id="donateStatus" class="mt-4 hidden rounded-md border border-[#E0A000]/40 bg-[#E0A000]/5 px-3.5 py-3 text-xs leading-relaxed text-gray-300"></p>
+  </div>
+
+  <!-- 荣誉墙 -->
+  <div class="mt-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-bold">荣誉墙</h2>
+      <span class="rounded border px-2 py-0.5 text-[10px]" style="border-color:var(--accent);color:var(--accent)">Honor Wall</span>
+    </div>
+    <p class="mt-2 text-xs text-gray-500">每一位捐赠者，都会被记录在这里。链上核验，公开可见。</p>
+    <div id="wall" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3"></div>
+  </div>
+
+  <div class="mt-6 rounded-xl border border-[#303236] bg-[#0B0C0C] p-6">
+    <h3 class="text-sm font-bold">常见问题</h3>
+    <div class="mt-3 space-y-3 text-xs leading-relaxed text-gray-500">
+      <p><span class="text-gray-300">钱去哪里？</span> 进入 Vortex 发射金库，专用于代付后续创业者的 FLAP 创建费，链上公开可查。</p>
+      <p><span class="text-gray-300">必须捐吗？</span> 纯属自愿。不捐不影响你发币，也不影响你的代币交易。</p>
+      <p><span class="text-gray-300">捐了有回报吗？</span> 没有。你得到的是下一位 DEV 零成本出发的机会。</p>
+      <p><span class="text-gray-300">怎么上荣誉墙？</span> 捐款时填写项目名称与 Logo，交易经链上核验后自动上榜，所有人可见。</p>
+    </div>
+  </div>
+</main>
+
+<footer class="border-t border-[#1A1B1D] py-8 text-center text-xs text-gray-600">
+  <div class="flex flex-wrap items-center justify-center gap-5">
+    <a href="index.html" class="hover:text-gray-400">首页</a>
+    <a href="docs.html" class="hover:text-gray-400">文档</a>
+    <a href="donate.html" class="hover:text-gray-400">捐赠</a>
+    <a href="https://x.com/Vortex_flap" target="_blank" rel="noreferrer" class="hover:text-gray-400">X</a>
+    <a href="https://github.com/VORTEXflap/vortex-launchpad" target="_blank" rel="noreferrer" class="hover:text-gray-400">GitHub</a>
+  </div>
+  <p class="mt-3">Vortex · The FLAP Fee-Sponsor Launchpad on BSC</p>
+</footer>
+
+<!-- 钱包连接弹窗 -->
+<div id="walletModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4" style="display:none">
+  <div class="w-full max-w-sm rounded-2xl border border-[#303236] bg-[#0B0C0C] p-6">
+    <div class="flex items-center justify-between">
+      <h3 class="text-base font-bold">连接钱包</h3>
+      <button id="walletClose" type="button" class="text-xl leading-none text-gray-500 hover:text-white">×</button>
+    </div>
+    <div id="walletStatus" class="mt-4 hidden rounded-lg border px-4 py-3 text-xs" style="border-color:var(--accent)">
+      <p class="text-gray-400">已连接</p>
+      <p id="walletAddr" class="mt-1 break-all font-semibold" style="color:var(--accent)"></p>
+      <p id="walletChain" class="mt-1 text-gray-500"></p>
+      <button id="disconnectBtn" type="button" class="mt-3 w-full rounded-md border border-red-500/40 bg-red-500/10 py-2 text-xs text-red-400 hover:bg-red-500/20">断开连接</button>
+    </div>
+    <div id="walletListWrap">
+      <div id="walletList" class="mt-4 space-y-2"></div>
+    </div>
+    <p class="mt-4 text-center text-[11px] text-gray-600">连接即代表同意服务条款 · 仅用于身份验证，不获取转账权限</p>
+  </div>
+</div>
+
+<script>
+// ---------- 钱包连接（EIP-6963 多钱包检测） ----------
+const connectBtn = document.getElementById("connectBtn");
+const walletModal = document.getElementById("walletModal");
+const walletList = document.getElementById("walletList");
+const walletListWrap = document.getElementById("walletListWrap");
+const walletStatus = document.getElementById("walletStatus");
+const walletAddr = document.getElementById("walletAddr");
+const walletChain = document.getElementById("walletChain");
+const disconnectBtn = document.getElementById("disconnectBtn");
+document.getElementById("walletClose").addEventListener("click", closeWalletModal);
+walletModal.addEventListener("click", (e) => { if (e.target === walletModal) closeWalletModal(); });
+function openWalletModal() { walletModal.style.display = "flex"; }
+function closeWalletModal() { walletModal.style.display = "none"; }
+
+const eip6963Providers = [];
+let currentProvider = null;
+let currentAccount = null;
+let currentChainId = null;
+
+window.addEventListener("eip6963:announceProvider", (e) => {
+  if (!eip6963Providers.some((p) => p.info.uuid === e.detail.info.uuid)) eip6963Providers.push(e.detail);
+  renderWalletList();
+});
+window.dispatchEvent(new Event("eip6963:requestProvider"));
+setTimeout(renderWalletList, 500);
+
+const shortWallet = (a) => a.slice(0, 6) + "…" + a.slice(-4);
+function walletItems() {
+  const items = [...eip6963Providers];
+  if (window.ethereum && !items.some((p) => p.provider === window.ethereum)) {
+    items.unshift({ info: { uuid: "injected", name: "浏览器钱包 Injected", icon: "" }, provider: window.ethereum });
+  }
+  return items;
+}
+function renderWalletList() {
+  const items = walletItems();
+  if (!items.length) {
+    walletList.innerHTML = `<div class="rounded-lg border border-[#303236] bg-[#070808] p-4 text-center text-xs text-gray-500">
+      未检测到钱包插件<br/><span class="text-gray-600">安装后刷新页面即可自动识别</span>
+      <div class="mt-3 flex flex-wrap justify-center gap-2">
+        <a href="https://metamask.io/download/" target="_blank" rel="noreferrer" class="rounded-md border border-[#303236] px-2.5 py-1 hover:border-[#E0A000]">MetaMask</a>
+        <a href="https://www.okx.com/web3" target="_blank" rel="noreferrer" class="rounded-md border border-[#303236] px-2.5 py-1 hover:border-[#E0A000]">OKX</a>
+        <a href="https://trustwallet.com/download" target="_blank" rel="noreferrer" class="rounded-md border border-[#303236] px-2.5 py-1 hover:border-[#E0A000]">Trust</a>
+      </div></div>`;
+    return;
+  }
+  walletList.innerHTML = items.map((p, i) => {
+    const name = p.info?.name || "钱包";
+    const icon = p.info?.icon || "";
+    return `<button type="button" class="wallet-item flex w-full items-center gap-3 rounded-lg border border-[#303236] bg-[#070808] px-4 py-3 text-left transition hover:border-[#E0A000]">
+      ${icon ? `<img src="${icon}" alt="" class="h-7 w-7 rounded-full object-contain"/>` : `<span class="flex h-7 w-7 items-center justify-center rounded-full border border-[#E0A000]/40 text-[10px] font-bold" style="color:var(--accent)">W</span>`}
+      <span class="text-sm font-semibold">${name}</span>
+      ${i === 0 ? `<span class="ml-auto text-[10px] text-gray-600">推荐</span>` : ""}
+    </button>`;
+  }).join("");
+  document.querySelectorAll(".wallet-item").forEach((btn, i) => {
+    btn.addEventListener("click", () => connectWallet(walletItems()[i].provider));
+  });
+}
+async function connectWallet(provider) {
+  try {
+    const accounts = await provider.request({ method: "eth_requestAccounts" });
+    currentProvider = provider;
+    currentAccount = accounts[0];
+    try { currentChainId = await provider.request({ method: "eth_chainId" }); } catch { currentChainId = null; }
+    updateWalletUI();
+    closeWalletModal();
+    if (provider.on) {
+      provider.on("accountsChanged", (accs) => { currentAccount = accs[0] || null; updateWalletUI(); });
+      provider.on("chainChanged", (cid) => { currentChainId = cid; updateWalletUI(); });
+      provider.on("disconnect", () => { currentAccount = null; currentProvider = null; currentChainId = null; updateWalletUI(); });
+    }
+  } catch (e) { console.warn("[wallet] 用户拒绝或连接失败:", e && e.message); }
+}
+function updateWalletUI() {
+  if (currentAccount) {
+    const chainLabel = currentChainId === "0x38" ? "BSC" : currentChainId === "0x61" ? "BSC 测试网" : "未知链";
+    connectBtn.textContent = shortWallet(currentAccount);
+    connectBtn.style.background = "#070808";
+    connectBtn.style.color = "var(--accent)";
+    connectBtn.style.border = "1px solid var(--accent)";
+    connectBtn.style.fontWeight = "400";
+    walletStatus.style.display = "block";
+    walletAddr.textContent = currentAccount;
+    walletChain.textContent = chainLabel + "（请切换到 BSC 链ID 56）";
+    walletListWrap.style.display = "none";
+  } else {
+    connectBtn.textContent = "连接钱包";
+    connectBtn.style.background = "var(--accent)";
+    connectBtn.style.color = "#000";
+    connectBtn.style.border = "none";
+    connectBtn.style.fontWeight = "600";
+    walletStatus.style.display = "none";
+    walletListWrap.style.display = "block";
+  }
+}
+connectBtn.addEventListener("click", () => { openWalletModal(); renderWalletList(); updateWalletUI(); });
+disconnectBtn.addEventListener("click", () => {
+  currentAccount = null; currentProvider = null; currentChainId = null;
+  updateWalletUI(); renderWalletList(); closeWalletModal();
+});
+
+// API 基址自动推断：线上同域 /api（nginx 反代到中继器），本地开发走 localhost:8080
+const API_BASE = (location.protocol === "http:" || location.protocol === "https:")
+  ? (location.hostname === "localhost" || location.hostname === "127.0.0.1"
+      ? "http://localhost:8080"
+      : location.origin)   // 线上：https://vortexflap.fun/api/...
+  : "http://localhost:8080";
+
+// 中继器请求超时助手：离线时快速降级到演示数据
+const fetchT = (url, opts, ms = 1500) =>
+  Promise.race([fetch(url, opts), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
+
+// ---------- Logo 上传与荣誉墙 ----------
+let donorLogo = ""; // dataURL
+const donorLogoInput = document.getElementById("donorLogoInput");
+const donorLogoBox = document.getElementById("donorLogoBox");
+donorLogoInput.addEventListener("change", () => {
+  const file = donorLogoInput.files && donorLogoInput.files[0];
+  if (!file) return;
+  if (file.size > 150 * 1024) { donorLogoBox.textContent = "过大"; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    donorLogo = String(reader.result || "");
+    donorLogoBox.innerHTML = `<img src="${donorLogo}" alt="logo" class="h-full w-full object-cover"/>`;
+    donorLogoBox.style.borderStyle = "solid";
+    donorLogoBox.style.borderColor = "var(--accent)";
+  };
+  reader.readAsDataURL(file);
+});
+
+function wallCard(d) {
+  const amt = ethersLikeFormat(d.value);
+  const img = d.logo
+    ? `<img src="${d.logo}" alt="" class="h-10 w-10 rounded-full object-cover"/>`
+    : `<span class="flex h-10 w-10 items-center justify-center rounded-full bg-[#E0A000] text-sm font-bold text-black">${(d.name[0] || "?").toUpperCase()}</span>`;
+  return `<div class="rounded-xl border border-[#303236] bg-[#0B0C0C] p-4">
+    <div class="flex items-center gap-3">
+      ${img}
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-semibold">${d.name}</p>
+        <p class="mt-0.5 text-[11px] text-gray-500">${shortWallet(d.donor)}</p>
+      </div>
+      <span class="shrink-0 text-sm font-bold" style="color:var(--accent)">${amt}</span>
+    </div>
+    <a href="https://bscscan.com/tx/${d.txHash}" target="_blank" rel="noreferrer" class="mt-2 block text-right text-[10px] text-gray-600 underline hover:text-gray-400">交易凭证 ↗</a>
+  </div>`;
+}
+
+function ethersLikeFormat(weiStr) {
+  try {
+    const v = BigInt(weiStr);
+    const bnb = Number(v) / 1e18;
+    return (bnb < 0.01 ? bnb.toFixed(4) : bnb.toFixed(2)) + " BNB";
+  } catch { return "—"; }
+}
+
+async function loadWall() {
+  const wall = document.getElementById("wall");
+  const empty = '<p class="col-span-full rounded-xl border border-[#303236] bg-[#0B0C0C] py-10 text-center text-xs text-gray-500">暂无捐赠记录 —— 成为第一位上榜的 DEV</p>';
+  try {
+    const res = await fetchT(API_BASE + "/api/donations");
+    const data = await res.json();
+    // 仅展示经中继器链上核验的真实捐赠
+    const list = (data.ok && Array.isArray(data.donations)) ? data.donations : [];
+    wall.innerHTML = list.length ? list.slice(0, 12).map(wallCard).join("") : empty;
+  } catch {
+    wall.innerHTML = empty;
+  }
+}
+loadWall();
+
+// ---------- 捐赠 ----------
+const fundAddrEl = document.getElementById("fundAddr");
+const donateStatus = document.getElementById("donateStatus");
+let fundAddress = "";
+let donateAmount = "0.01";
+
+fetchT(API_BASE + "/api/fund")
+  .then((r) => r.json())
+  .then((d) => { if (d.ok && d.address) { fundAddress = d.address; fundAddrEl.textContent = fundAddress; } })
+  .catch(() => { fundAddress = "0xF00dF00dF00dF00dF00dF00dF00dF00dF00dF00d"; fundAddrEl.textContent = fundAddress + "（演示占位）"; });
+
+document.getElementById("copyFundBtn").addEventListener("click", () => {
+  navigator.clipboard && navigator.clipboard.writeText(fundAddress);
+  document.getElementById("copyFundBtn").textContent = "已复制";
+  setTimeout(() => (document.getElementById("copyFundBtn").textContent = "复制地址"), 1500);
+});
+
+document.querySelectorAll(".donate-amt").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    donateAmount = btn.dataset.amt;
+    document.querySelectorAll(".donate-amt").forEach((b) => {
+      b.style.background = "transparent"; b.style.borderColor = "#303236"; b.style.color = "#9CA3AF";
+    });
+    btn.style.background = "rgba(224,160,0,0.05)"; btn.style.borderColor = "var(--accent)"; btn.style.color = "var(--accent)";
+  });
+});
+
+document.getElementById("donateBtn").addEventListener("click", async () => {
+  donateStatus.style.display = "none";
+  if (!currentAccount || !currentProvider) {
+    openWalletModal();
+    donateStatus.style.display = "block";
+    donateStatus.textContent = "请先连接钱包，并填写项目名称（荣誉墙展示）。捐款是自愿的：成功后回馈一次发射成本，帮下一位创业者零成本出发。";
+    return;
+  }
+  try {
+    const wei = "0x" + BigInt(Math.round(parseFloat(donateAmount) * 1e18)).toString(16);
+    const txHash = await currentProvider.request({
+      method: "eth_sendTransaction",
+      params: [{ from: currentAccount, to: fundAddress, value: wei }],
+    });
+    donateStatus.style.display = "block";
+    const donorName = (document.getElementById("donorName").value || "").trim();
+    if (donorName && fundAddress) {
+      try {
+        const reg = await fetchT(API_BASE + "/api/donations", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ name: donorName, logo: donorLogo, txHash, donor: currentAccount }),
+        });
+        const regData = await reg.json();
+        if (regData.ok) {
+          donateStatus.innerHTML = `感谢你的捐赠。下一枚 0 手续费代币背后，有你的一份燃料。<br/><span class="text-gray-500">Tx: ${txHash.slice(0, 10)}…${txHash.slice(-6)} · 已登上荣誉墙</span>`;
+          loadWall();
+          return;
+        }
+      } catch { /* 中继器未接入，本地提示 */ }
+    }
+    donateStatus.innerHTML = `感谢你的捐赠。下一枚 0 手续费代币背后，有你的一份燃料。<br/><span class="text-gray-500">Tx: ${txHash.slice(0, 10)}…${txHash.slice(-6)}</span>`;
+  } catch (e) {
+    donateStatus.style.display = "block";
+    donateStatus.textContent = "交易未完成（可能被钱包拒绝）。捐赠纯属自愿，随时可以再来。";
+    console.warn("[donate]", e && e.message);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Vortex — The FLAP Fee-Sponsor Launchpad on BSC</title>
+<link rel="icon" type="image/png" href="logo.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Turnstile 脚本改为点击发币时懒加载，避免国内网络拖慢页面 -->
+<style>
+  :root { --accent: #E0A000; } /* 项目 LOGO 金色；换回柠檬绿 #D0FF00 或币安黄 #F0B90B 只改这里 */
+  html { scroll-behavior: smooth; }
+  body { background:#070808; color:#F9FAFB;
+         font-family:"Noto Sans SC","Space Grotesk",Arial,"PingFang SC","Microsoft YaHei",sans-serif; }
+  ::selection { background:var(--accent); color:#000; }
+  .glow { background: radial-gradient(ellipse 55% 42% at 50% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 72%); }
+  input::placeholder { color:#6B7280; }
+textarea::placeholder { color:#6B7280; }
+  .num { font-variant-numeric: tabular-nums; }
+  input[type="range"] { accent-color: var(--accent); }
+  /* 暗色主题下让输入框明显"可输入"：悬停提亮边框，聚焦变金 */
+  input:not([type="range"]):hover, textarea:hover { border-color: #4A5058; }
+  input:not([type="range"]):focus, textarea:focus { border-color: var(--accent); }
+</style>
+</head>
+<body class="min-h-screen antialiased">
+
+<!-- ===== 顶部导航 ===== -->
+<nav class="mx-auto flex h-16 max-w-[1440px] items-center gap-6 px-4 md:px-8">
+  <a href="index.html" class="flex items-center gap-2">
+    <img src="logo.png" alt="VORTEX" class="h-8 w-8 object-contain"/>
+    <span class="text-lg font-bold tracking-widest">VORTEX</span>
+  </a>
+  <div class="hidden items-center gap-5 text-sm text-gray-300 md:flex">
+    <a href="index.html" class="hover:text-white">首页</a>
+    <span class="coming-soon cursor-not-allowed text-gray-600" data-name="商店" title="暂未开放">商店</span>
+    <span class="coming-soon cursor-not-allowed text-gray-600" data-name="锁仓" title="暂未开放">锁仓</span>
+    <a href="docs.html" class="hover:text-white">文档</a>
+    <a href="donate.html" class="hover:text-white">捐赠</a>
+  </div>
+  <div class="ml-auto flex items-center gap-2">
+    <button class="flex items-center gap-1.5 rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm">
+      <span class="flex h-4 w-4 items-center justify-center rounded-full bg-[#F0B90B] text-[9px] font-bold text-black">B</span>
+      BSC
+    </button>
+    <button class="hidden rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm sm:block">中文</button>
+    <a href="https://github.com/VORTEXflap/vortex-launchpad" target="_blank" rel="noreferrer" title="GitHub" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#303236] bg-[#070808] text-gray-300 transition hover:border-[#E0A000] hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+    </a>
+    <a href="https://x.com/Vortex_flap" target="_blank" rel="noreferrer" title="X" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#303236] bg-[#070808] text-gray-300 transition hover:border-[#E0A000] hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <button id="connectBtn" class="rounded-md px-3 py-1.5 text-sm font-semibold text-black" style="background:var(--accent)">连接钱包</button>
+  </div>
+</nav>
+
+<!-- ===== 英雄区 ===== -->
+<div class="glow">
+<header class="mx-auto max-w-[1440px] px-4 pb-6 pt-10 text-center md:px-8">
+  <p class="text-xs font-semibold uppercase tracking-[0.35em]" style="color:var(--accent)">The FLAP Fee-Sponsor Launchpad on BSC</p>
+  <img src="logo.png" alt="" class="mx-auto mt-6 h-16 w-16 object-contain"/>
+  <h1 class="mt-4 text-5xl font-black tracking-tight md:text-7xl">VORTEX</h1>
+  <p class="mt-4 text-lg text-gray-400">/// Zero Fee. Launch on FLAP.</p>
+  <p class="mx-auto mt-3 max-w-xl text-sm text-gray-500">0 手续费发币。Vortex 代付 FLAP 创建手续费，一次提交，代币直接上线 FLAP —— 你无需支付哪怕 1 wei。</p>
+
+  <!-- 中继合约（链上可验证的合约身份） -->
+  <div class="mx-auto mt-5 flex w-fit flex-wrap items-center justify-center gap-2 rounded-lg border border-[#303236] bg-[#0B0C0C] px-4 py-2 text-[11px]">
+    <span class="flex items-center gap-1.5" style="color:var(--accent)">
+      <span class="h-1.5 w-1.5 rounded-full" style="background:var(--accent)"></span>
+      中继合约
+    </span>
+    <a href="https://bscscan.com/address/0x217264D477fC576B2768E2EABE7e8408CB17F39F" target="_blank" rel="noreferrer"
+       class="font-mono text-gray-300 underline hover:text-white">0x217264D477fC576B2768E2EABE7e8408CB17F39F</a>
+    <span class="text-gray-600">· 链上可验证</span>
+  </div>
+  <a href="#launchCard" class="mt-6 inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm font-bold text-black transition hover:brightness-110" style="background:var(--accent)">
+    开始创建代币
+    <span aria-hidden="true">↓</span>
+  </a>
+</header>
+</div>
+
+<!-- ===== 主区域：发币卡 + 实时看板 ===== -->
+<main class="mx-auto max-w-[1440px] px-4 md:px-8">
+
+  <section class="grid gap-8 pb-10 lg:grid-cols-[440px_1fr]">
+
+    <!-- 发币卡 -->
+    <div id="launchCard" class="h-fit scroll-mt-20 rounded-xl border border-[#303236] bg-[#0B0C0C] p-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold">创建代币</h2>
+        <span class="rounded border px-2 py-0.5 text-[10px]" style="border-color:var(--accent);color:var(--accent)">0 手续费</span>
+      </div>
+
+      <!-- 基本信息 -->
+      <h3 class="mt-5 text-sm font-bold">基本信息</h3>
+      <label class="mt-3 block">
+        <span class="text-xs text-gray-400">代币名称*</span>
+        <input id="inName" class="mt-1.5 w-full rounded-md border border-[#3A4046] bg-[#131518] px-3.5 py-2.5 text-sm outline-none focus:border-[#E0A000]" placeholder="例如：Vortex Dog" style="caret-color:var(--accent)"/>
+      </label>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <label class="block">
+          <span class="text-xs text-gray-400">代币符号*</span>
+          <input id="inSymbol" class="mt-1.5 w-full rounded-md border border-[#3A4046] bg-[#131518] px-3.5 py-2.5 text-sm uppercase outline-none focus:border-[#E0A000]" placeholder="VDG" style="caret-color:var(--accent)"/>
+        </label>
+        <label class="block">
+          <span class="text-xs text-gray-400">封面图片 / Logo</span>
+          <span id="logoBox" class="mt-1.5 flex h-[46px] w-[92px] cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-[#303236] bg-[#070808] text-center text-[10px] text-gray-500 transition hover:border-[#E0A000]">上传 PNG</span>
+          <input id="logoInput" type="file" accept="image/*" class="hidden" />
+        </label>
+      </div>
+      <label class="mt-4 block">
+        <span class="text-xs text-gray-400">代币描述</span>
+        <textarea id="inDesc" rows="2" maxlength="500" class="mt-1.5 w-full resize-none rounded-md border border-[#3A4046] bg-[#131518] px-3.5 py-2.5 text-sm outline-none focus:border-[#E0A000]" placeholder="一句话介绍你的代币（写入 FLAP 元数据）" style="caret-color:var(--accent)"></textarea>
+      </label>
+
+      <!-- 发射方式（隐私发射 / 自己创建） -->
+      <h3 class="mt-5 text-sm font-bold">发射方式</h3>
+      <div class="mt-3 space-y-2">
+        <button type="button" data-lm="privacy" class="lmode flex w-full items-center gap-3 rounded-md border bg-[#070808] p-3 text-left" style="border-color:var(--accent);background:rgba(224,160,0,0.05)">
+          <span class="lmode-radio flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" style="border-color:var(--accent)"><span class="lmode-dot h-2 w-2 rounded-full" style="background:var(--accent)"></span></span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-sm font-semibold">隐私发射 <span class="ml-1 rounded-sm px-1 text-[9px] font-bold text-black" style="background:var(--accent)">0 GAS</span></span>
+            <span class="mt-0.5 block text-[11px] leading-relaxed text-gray-500">创建者不公开（链上显示 Vortex 合约）· Gas 由 Vortex 中继代付 · 适合保护隐私</span>
+          </span>
+        </button>
+        <button type="button" data-lm="self" class="lmode flex w-full items-center gap-3 rounded-md border border-[#303236] bg-[#070808] p-3 text-left">
+          <span class="lmode-radio flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" style="border-color:#303236"><span class="lmode-dot h-2 w-2 rounded-full" style="background:transparent"></span></span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-sm font-semibold">自己创建 <span class="ml-1 rounded-sm border border-[#303236] px-1 text-[9px] text-gray-400">DEV 推荐</span></span>
+            <span class="mt-0.5 block text-[11px] leading-relaxed text-gray-500">创建者=你本人 · 可创建即优先买入 · 你付的 Gas 由中继合约<b class="text-gray-300">全额返还</b></span>
+          </span>
+        </button>
+      </div>
+
+      <!-- 优先买入（仅「自己创建」时显示） -->
+      <div id="quoteAmtWrap" class="mt-3 hidden rounded-md border border-[#303236] bg-[#070808] p-3.5">
+        <span class="text-xs text-gray-400">优先买入（可选 · 用你自己的 BNB 在创建同一笔交易中买入）</span>
+        <div class="mt-1.5 flex items-center gap-2">
+          <input id="quoteAmt" inputmode="decimal" placeholder="0.01" class="w-full rounded-md border border-[#3A4046] bg-[#131518] px-3.5 py-2.5 text-sm outline-none focus:border-[#E0A000]" style="caret-color:var(--accent)"/>
+          <span class="shrink-0 text-sm text-gray-400">BNB</span>
+        </div>
+        <p class="mt-1.5 text-[11px] leading-relaxed text-gray-500">这是 FLAP 上唯一能「抢跑」的方式 —— 创建交易里直接买入，抢在所有人前面。金额由你自己出，不占用我们的资金。</p>
+      </div>
+
+      <!-- 代币类型 -->
+      <h3 class="mt-5 text-sm font-bold">代币类型</h3>
+      <div class="mt-3 space-y-2">
+        <button type="button" data-mode="tax" class="mode flex w-full items-center gap-3 rounded-md border bg-[#070808] p-3 text-left" style="border-color:var(--accent);background:rgba(224,160,0,0.05)">
+          <span class="mode-radio flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" style="border-color:var(--accent)"><span class="mode-dot h-2 w-2 rounded-full" style="background:var(--accent)"></span></span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-sm font-semibold">税收模式 · 内盘曲线 Tax Curve</span>
+            <span class="mt-0.5 block text-[11px] leading-relaxed text-gray-500">可配置 0–10% 买/卖税率，自动归集补齐 Gas，债清后归零</span>
+          </span>
+        </button>
+        <button type="button" data-mode="zerotax" class="mode flex w-full items-center gap-3 rounded-md border border-[#303236] bg-[#070808] p-3 text-left">
+          <span class="mode-radio flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" style="border-color:#303236"><span class="mode-dot h-2 w-2 rounded-full" style="background:transparent"></span></span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-sm font-semibold">零税发射 Zero-Tax</span>
+            <span class="mt-0.5 block text-[11px] leading-relaxed text-gray-500">0 手续费交易 · 0.3% 曲线 LP 手续费偿还 Gas（FLAP 零税模式）</span>
+          </span>
+        </button>
+
+        <!-- 保留 CA 开关 -->
+        <button type="button" id="reserveToggle" class="flex w-full items-center justify-between rounded-md border border-[#303236] bg-[#070808] p-3 text-left">
+          <span class="min-w-0">
+            <span class="block text-sm font-semibold">保留 CA 预发射 Reserve CA</span>
+            <span class="mt-0.5 block text-[11px] leading-relaxed text-gray-500">先锁定代币合约地址（可预测 CA）· 预热后择时发布</span>
+          </span>
+          <span id="reserveKnob" class="ml-3 flex h-5 w-9 shrink-0 items-center rounded-full border border-[#303236] bg-[#070808] px-0.5 transition">
+            <span id="reserveDot" class="h-3.5 w-3.5 rounded-full bg-[#303236] transition"></span>
+          </span>
+        </button>
+
+        <!-- 提前挖出的合约地址（预生成） -->
+        <div id="caPreview" class="mt-2 hidden rounded-md border border-dashed px-3.5 py-3 text-xs" style="border-color:var(--accent)">
+          <p class="text-gray-500">提前挖出的合约地址（发布前可给社群预览）</p>
+          <p id="caPreviewAddr" class="mt-1 break-all" style="color:var(--accent)"></p>
+        </div>
+      </div>
+
+      <!-- 支付代币 -->
+      <h3 class="mt-5 text-sm font-bold">支付代币*</h3>
+      <div id="quoteCats" class="mt-3 flex items-center gap-4 text-sm">
+        <button type="button" class="qcat" data-cat="featured" style="color:var(--accent)">精选</button>
+        <button type="button" class="qcat" data-cat="all" style="color:#484B51">全部</button>
+        <button type="button" class="qcat" data-cat="stocks" style="color:#484B51">股票代币</button>
+        <button type="button" class="qcat" data-cat="preipo" style="color:#484B51">Pre-IPO</button>
+      </div>
+      <div id="quoteGrid" class="mt-3 flex max-h-[260px] flex-wrap gap-2 overflow-y-auto pr-1"></div>
+      <p id="quoteEmpty" class="mt-2 hidden text-[11px] text-gray-600">Pre-IPO 池即将开放</p>
+
+      <!-- 代币设置 -->
+      <h3 class="mt-5 text-sm font-bold">代币设置</h3>
+      <div id="taxPanel" class="mt-3 space-y-4">
+        <label class="block">
+          <span class="flex items-center justify-between text-xs text-gray-400">
+            <span>买入税率</span><span id="buyTaxVal" class="text-sm font-bold" style="color:var(--accent)">1%</span>
+          </span>
+          <input id="buyTax" type="range" min="0" max="10" step="1" value="1" class="mt-1.5 w-full"/>
+          <span class="flex justify-between text-[10px] text-gray-600"><span>0%</span><span>10%</span></span>
+        </label>
+        <label class="block">
+          <span class="flex items-center justify-between text-xs text-gray-400">
+            <span>卖出税率</span><span id="sellTaxVal" class="text-sm font-bold" style="color:var(--accent)">1%</span>
+          </span>
+          <input id="sellTax" type="range" min="0" max="10" step="1" value="1" class="mt-1.5 w-full"/>
+          <span class="flex justify-between text-[10px] text-gray-600"><span>0%</span><span>10%</span></span>
+        </label>
+        <p class="text-[11px] leading-relaxed text-gray-500">交易税 → 先自动偿还中继器 Gas 债务；债清后按所选分配比例持续运作（创作者/销毁/分红/流动性），全为 0 则永久 0 手续费。</p>
+
+        <!-- 税收分配 -->
+        <div class="border-t border-[#1A1B1D] pt-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-400">税收分配（总分配必须为 100%）</span>
+            <span id="unalloc" class="text-[11px] font-bold" style="color:var(--accent)">未分配: 0%</span>
+          </div>
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            <button type="button" class="dist-preset rounded-[2px] border border-[#303236] px-2 py-1 text-[11px] text-gray-400" data-pcts="100,0,0,0">全归创作者</button>
+            <button type="button" class="dist-preset rounded-[2px] border border-[#303236] px-2 py-1 text-[11px] text-gray-400" data-pcts="0,0,100,0">全部分红</button>
+            <button type="button" class="dist-preset rounded-[2px] border border-[#303236] px-2 py-1 text-[11px] text-gray-400" data-pcts="0,100,0,0">全部销毁</button>
+            <button type="button" class="dist-preset rounded-[2px] border border-[#303236] px-2 py-1 text-[11px] text-gray-400" data-pcts="0,0,0,100">全部流动性</button>
+            <button type="button" class="dist-preset rounded-[2px] border border-[#303236] px-2 py-1 text-[11px] text-gray-400" data-pcts="25,25,25,25">四等分</button>
+            <button type="button" id="distReset" class="ml-auto rounded-[2px] border border-[#303236] px-2 py-1 text-[11px] text-gray-500">重置</button>
+          </div>
+          <div class="mt-2 space-y-3">
+            <label class="block">
+              <span class="flex items-center justify-between text-xs text-gray-400">
+                <span>创作者钱包（开发者、营销等）</span><span id="dCreator" class="text-sm font-bold" style="color:var(--accent)">100%</span>
+              </span>
+              <input id="slCreator" type="range" min="0" max="100" step="5" value="100" class="mt-1 w-full"/>
+            </label>
+            <label class="block">
+              <span class="flex items-center justify-between text-xs text-gray-400">
+                <span>销毁（减少供应量）</span><span id="dBurn" class="text-sm font-bold" style="color:var(--accent)">0%</span>
+              </span>
+              <input id="slBurn" type="range" min="0" max="100" step="5" value="0" class="mt-1 w-full"/>
+            </label>
+            <label class="block">
+              <span class="flex items-center justify-between text-xs text-gray-400">
+                <span>分红（持有者奖励）</span><span id="dDividend" class="text-sm font-bold" style="color:var(--accent)">0%</span>
+              </span>
+              <input id="slDividend" type="range" min="0" max="100" step="5" value="0" class="mt-1 w-full"/>
+            </label>
+            <label class="block">
+              <span class="flex items-center justify-between text-xs text-gray-400">
+                <span>流动性（增加流动性）</span><span id="dLiquidity" class="text-sm font-bold" style="color:var(--accent)">0%</span>
+              </span>
+              <input id="slLiquidity" type="range" min="0" max="100" step="5" value="0" class="mt-1 w-full"/>
+            </label>
+          </div>
+          <div class="mt-3">
+            <span class="text-xs text-gray-400">佣金接收地址（可选）</span>
+            <input id="inTaxWallet" class="mt-1.5 w-full rounded-md border border-[#3A4046] bg-[#131518] px-3.5 py-2.5 text-sm outline-none focus:border-[#E0A000]" placeholder="0x…（留空则归你本人）" style="caret-color:var(--accent)"/>
+            <button type="button" id="useRelayerBtn" class="mt-1.5 text-[11px] underline" style="color:var(--accent)">填入 Vortex 中继合约（佣金用于补贴平台 Gas）</button>
+            <p class="mt-1.5 text-[11px] leading-relaxed text-gray-500">
+              代币<b class="text-gray-300">税收主体</b>始终打入你的连接钱包（不受此地址影响）；
+              此地址接收 FLAP 协议佣金，可用于补贴平台代付的 Gas。
+            </p>
+          </div>
+        </div>
+      </div>
+      <p id="zeroTaxNote" class="mt-3 hidden rounded-md border border-[#303236] bg-[#070808] px-3.5 py-3 text-[11px] leading-relaxed text-gray-500">
+        零税模式：买/卖税率固定为 0%，0 手续费交易；Gas 债务由 0.3% 曲线 LP 手续费偿还，债清后归零。
+      </p>
+
+      <!-- 保护期 -->
+      <div class="mt-4">
+        <span class="text-xs text-gray-400">防「挖、提、卖」保护期</span>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button type="button" data-protect="0"  class="protect rounded-[2px] border px-3 py-1.5 text-xs" style="background:rgba(224,160,0,0.05);border-color:var(--accent);color:var(--accent)">关闭</button>
+          <button type="button" data-protect="300" class="protect rounded-[2px] border px-3 py-1.5 text-xs" style="background:transparent;border-color:#303236;color:#9CA3AF">5 分钟</button>
+          <button type="button" data-protect="900" class="protect rounded-[2px] border px-3 py-1.5 text-xs" style="background:transparent;border-color:#303236;color:#9CA3AF">15 分钟</button>
+          <button type="button" data-protect="1800" class="protect rounded-[2px] border px-3 py-1.5 text-xs" style="background:transparent;border-color:#303236;color:#9CA3AF">30 分钟</button>
+        </div>
+      </div>
+
+      <!-- DEV 优先购买窗口 -->
+      <div class="mt-4">
+        <span class="text-xs text-gray-400">开发者优先购买 DEV Pre-Buy</span>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button type="button" data-dev="0"    class="devwin rounded-[2px] border px-3 py-1.5 text-xs" style="background:rgba(224,160,0,0.05);border-color:var(--accent);color:var(--accent)">关闭</button>
+          <button type="button" data-dev="600"  class="devwin rounded-[2px] border px-3 py-1.5 text-xs" style="background:transparent;border-color:#303236;color:#9CA3AF">10 分钟</button>
+          <button type="button" data-dev="1800" class="devwin rounded-[2px] border px-3 py-1.5 text-xs" style="background:transparent;border-color:#303236;color:#9CA3AF">30 分钟</button>
+          <button type="button" data-dev="3600" class="devwin rounded-[2px] border px-3 py-1.5 text-xs" style="background:transparent;border-color:#303236;color:#9CA3AF">1 小时</button>
+        </div>
+        <p class="mt-2 text-[11px] leading-relaxed text-gray-500">开盘后窗口期内仅 DEV 可买入，锁定地板价并减少狙击；DEV 用自有 BNB 直接调用代币合约 buy() 完成购买。</p>
+      </div>
+
+      <!-- Turnstile 占位 -->
+      <div class="mt-4 rounded-md border border-[#303236] bg-[#070808] p-3.5 text-center text-[11px] text-gray-500">Cloudflare Turnstile · 点击发币后自动验证</div>
+
+      <!-- Turnstile 真人验证容器（点击发币后显示） -->
+      <div id="turnstileWrap" class="mt-4 hidden rounded-md border border-[#303236] bg-[#070808] p-3.5">
+        <p id="tsHint" class="mb-2 text-center text-[11px] text-gray-500">完成人机验证后自动提交发币请求</p>
+        <div id="turnstileBox" class="flex justify-center"></div>
+      </div>
+
+      <button id="launchBtn" class="mt-4 w-full rounded-md py-3 text-sm font-bold text-black transition" style="background:var(--accent)">一键发币 · Launch on FLAP</button>
+      <p id="launchHint" class="mt-3 text-center text-[11px] leading-relaxed text-gray-500">0 手续费 · 由 Vortex 中继合约代付 · 代币直接上线 FLAP<br/>
+        <a href="https://bscscan.com/address/0x217264D477fC576B2768E2EABE7e8408CB17F39F" target="_blank" rel="noreferrer" class="underline" style="color:var(--accent)">查看中继合约 ↗</a>
+      </p>
+      <p id="errBox" class="mt-3 hidden rounded-md border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-xs text-red-400"></p>
+
+      <!-- 保留 CA 成功框 -->
+      <div id="caBox" class="mt-3 hidden break-all rounded-md border border-[#E0A000]/40 bg-[#E0A000]/5 px-3.5 py-3 text-xs text-gray-300">
+        <p class="font-semibold" style="color:var(--accent)">✓ CA 已锁定（可预测地址）</p>
+        <p class="mt-1">合约地址: 0x3F7a…9C2E</p>
+        <p class="mt-1">预热完成后点击「发布代币 · Publish」正式上线。</p>
+      </div>
+
+      <!-- 发币成功框 -->
+      <div id="txBox" class="mt-3 hidden break-all rounded-md border border-[#E0A000]/40 bg-[#E0A000]/5 px-3.5 py-3 text-xs text-gray-300">
+        <div class="flex items-center gap-3">
+          <img id="txLogo" alt="" class="hidden h-12 w-12 shrink-0 rounded-full object-cover"/>
+          <p class="font-semibold" style="color:var(--accent)">✓ 代币已上线 FLAP</p>
+        </div>
+        <p id="txDemoNote" class="mt-1 rounded border border-dashed px-2 py-1 text-[10px] text-gray-500" style="border-color:#484B51;display:none">⚠ 演示效果：未真实上链</p>
+        <p id="txSummary" class="mt-1"></p>
+        <p id="txRefund" class="mt-1 rounded border border-dashed px-2 py-1 text-[10px]" style="border-color:var(--accent);display:none"></p>
+        <p class="mt-1">Token: <span id="txTokenAddr">—</span></p>
+        <p class="mt-0.5 text-gray-500">Tx: <span id="txHashText">—</span> · <a id="txHashLink" href="#" target="_blank" rel="noreferrer" class="underline">BscScan ↗</a></p>
+        <a id="txFlapLink" href="#" target="_blank" rel="noreferrer" class="mt-2 block w-full rounded-md py-2.5 text-center text-sm font-bold text-black" style="background:var(--accent)">在 FLAP 查看代币 ↗</a>
+        <p class="mt-3 text-center text-[11px] leading-relaxed text-gray-500">项目起飞后，欢迎<a href="donate.html" class="underline" style="color:var(--accent)">向开发者互助基金捐赠</a>一次发射成本，让下一位 DEV 零成本出发。</p>
+      </div>
+    </div>
+
+    <!-- 看板 -->
+    <div class="min-w-0">
+      <div class="flex flex-wrap items-center gap-2">
+        <button class="tab rounded-md px-3 py-1.5 text-sm" style="background:var(--accent);color:#000">热门</button>
+        <button class="tab rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm text-gray-300">内盘打新</button>
+        <button class="tab rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm text-gray-300">股票</button>
+        <button class="tab rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm text-gray-300">礼物代币</button>
+        <button class="tab rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm text-gray-300">创新</button>
+        <button class="tab rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm text-gray-300">低风险 FAC</button>
+        <div class="ml-auto flex items-center gap-2">
+          <button id="listBtn" class="rounded-md px-2.5 py-1.5 text-sm font-semibold" style="background:var(--accent);color:#000">列表</button>
+          <button id="gridBtn" class="rounded-md border border-[#303236] px-2.5 py-1.5 text-sm text-gray-300">网格</button>
+          <button class="rounded-md border border-[#303236] px-2.5 py-1.5 text-sm text-gray-300">筛选</button>
+        </div>
+      </div>
+
+      <p id="emptyNote" class="mt-4 hidden rounded-xl border border-[#303236] bg-[#0B0C0C] py-10 text-center text-xs text-gray-500">该分类数据接入中…</p>
+
+      <!-- 列表视图 -->
+      <div id="listView" class="mt-4 overflow-x-auto">
+        <table class="w-full min-w-[1080px] border-separate border-spacing-0 text-sm">
+          <thead>
+            <tr class="text-left text-xs text-gray-500">
+              <th class="px-3 py-2.5 font-normal">代币</th>
+              <th class="px-3 py-2.5 text-right font-normal">价格</th>
+              <th class="px-3 py-2.5 text-right font-normal">计价代币</th>
+              <th class="px-3 py-2.5 text-right font-normal">市值</th>
+              <th class="px-3 py-2.5 text-right font-normal">税收</th>
+              <th class="px-3 py-2.5 text-right font-normal">24h 交易额</th>
+              <th class="px-3 py-2.5 text-right font-normal">持有人</th>
+              <th class="px-3 py-2.5 text-right font-normal">LIQ</th>
+              <th class="px-3 py-2.5 text-right font-normal">5M</th>
+              <th class="px-3 py-2.5 text-right font-normal">1H</th>
+              <th class="px-3 py-2.5 text-right font-normal">4H</th>
+              <th class="px-3 py-2.5 text-right font-normal">24H</th>
+              <th class="px-3 py-2.5 text-right font-normal">详情</th>
+            </tr>
+          </thead>
+          <tbody id="rows" class="num"></tbody>
+        </table>
+      </div>
+
+      <!-- 网格视图 -->
+      <div id="gridView" class="mt-4 hidden grid grid-cols-2 gap-3 md:grid-cols-3"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== 页脚 ===== -->
+<footer class="border-t border-[#1A1B1D] py-8 text-center text-xs text-gray-600">
+  <div class="flex flex-wrap items-center justify-center gap-5">
+    <a href="#" class="hover:text-gray-400">条款与条件</a>
+    <a href="#" class="hover:text-gray-400">联系我们</a>
+    <a href="docs.html" class="hover:text-gray-400">文档</a>
+    <a href="donate.html" class="hover:text-gray-400">捐赠</a>
+    <a href="https://x.com/Vortex_flap" target="_blank" rel="noreferrer" class="hover:text-gray-400">X</a>
+    <a href="https://github.com/VORTEXflap/vortex-launchpad" target="_blank" rel="noreferrer" class="hover:text-gray-400">GitHub</a>
+    <a href="#" class="hover:text-gray-400">X</a>
+    <a href="#" class="hover:text-gray-400">Telegram</a>
+  </div>
+  <p class="mt-3">Vortex · The FLAP Fee-Sponsor Launchpad on BSC</p>
+</footer>
+
+<!-- 钱包连接弹窗 -->
+<div id="walletModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4" style="display:none">
+  <div class="w-full max-w-sm rounded-2xl border border-[#303236] bg-[#0B0C0C] p-6">
+    <div class="flex items-center justify-between">
+      <h3 class="text-base font-bold">连接钱包</h3>
+      <button id="walletClose" type="button" class="text-xl leading-none text-gray-500 hover:text-white">×</button>
+    </div>
+    <div id="walletStatus" class="mt-4 hidden rounded-lg border px-4 py-3 text-xs" style="border-color:var(--accent)">
+      <p class="text-gray-400">已连接</p>
+      <p id="walletAddr" class="mt-1 break-all font-semibold" style="color:var(--accent)"></p>
+      <p id="walletChain" class="mt-1 text-gray-500"></p>
+      <button id="disconnectBtn" type="button" class="mt-3 w-full rounded-md border border-red-500/40 bg-red-500/10 py-2 text-xs text-red-400 hover:bg-red-500/20">断开连接</button>
+    </div>
+    <div id="walletListWrap">
+      <div id="walletList" class="mt-4 space-y-2"></div>
+    </div>
+    <p class="mt-4 text-center text-[11px] text-gray-600">连接即代表同意服务条款 · 仅用于身份验证，不获取转账权限</p>
+  </div>
+</div>
+
+<script>
+// API 基址自动推断：线上同域 /api（nginx 反代到中继器），本地开发走 localhost:8080
+const API_BASE = (location.protocol === "http:" || location.protocol === "https:")
+  ? (location.hostname === "localhost" || location.hostname === "127.0.0.1"
+      ? "http://localhost:8080"
+      : location.origin)   // 线上：https://vortexflap.fun/api/...
+  : "http://localhost:8080";
+
+// 带超时的 fetch：中继器离线/超时时快速降级，避免页面长时间挂起
+const fetchT = (url, opts, ms = 1500) =>
+  Promise.race([
+    fetch(url, opts),
+    new Promise((_, rej) => setTimeout(() => rej(new Error("请求超时")), ms)),
+  ]);
+
+// ---------- 数据 ----------
+// 真实数据源：从 Vortex 中继器拉取（无后端时保持空 → 显示空状态）
+let TOKENS = [];
+let STOCKS = [];
+
+async function loadBoard() {
+  try {
+    const [a, b] = await Promise.all([
+      fetchT(API_BASE + "/api/launches").then(r => r.json()).catch(() => null),
+      fetchT(API_BASE + "/api/stocks").then(r => r.json()).catch(() => null),
+    ]);
+    // FLAP TokenCreated 事件 → 看板行（仅真实发射记录）
+    if (a && a.ok && Array.isArray(a.launches)) {
+      TOKENS = a.launches.map(l => ({
+        s: l.symbol, n: l.name, g: false,
+        p: "—", q: "BNB", mc: "—", tax: "—", vol: "—", h: "—", liq: "—",
+        c: ["—", "—", "—", "—"], addr: l.token,
+      }));
+    }
+    if (b && b.ok && Array.isArray(b.pools)) STOCKS = b.pools;
+  } catch { /* 中继器未接入：保持空 */ }
+  render();
+}
+loadBoard();
+
+const hue = s => [...s].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%360;
+const fakeAddr = (sym) => "0x" + [...sym].map(c => c.charCodeAt(0).toString(16).padStart(2,"0")).join("").padEnd(40, "0");
+const up  = v => v.startsWith("+");
+const pct = v => up(v) ? "text-green-400" : "text-red-400";
+
+const avatar = (t, size) => `<span class="flex ${size} shrink-0 items-center justify-center rounded-full text-xs font-bold text-black"
+  style="background:hsl(${hue(t.s)} 80% 60%)">${t.s[0]}</span>`;
+
+const stockAvatar = (t, size) => `<span class="flex ${size} shrink-0 items-center justify-center rounded-full border border-[#E0A000]/40 bg-[#E0A000]/10 text-xs font-bold"
+  style="color:var(--accent)">${t.s[0]}</span>`;
+
+function rowHtml(t){
+  return `<tr class="border-b border-[#1A1B1D] hover:bg-white/[0.02]">
+    <td class="px-3 py-3">
+      <a href="token.html?addr=${fakeAddr(t.s)}&name=${encodeURIComponent(t.n)}&symbol=${t.s}" class="flex items-center gap-2.5 hover:opacity-80">
+        ${avatar(t,"h-8 w-8")}
+        <div class="leading-tight">
+          <div class="flex items-center gap-1.5 font-semibold">$${t.s}
+            ${t.g?'<span class="rounded-sm px-1 text-[9px] font-bold text-black" style="background:var(--accent)">G</span>':""}
+          </div>
+          <div class="text-xs text-gray-500">${t.n}</div>
+        </div>
+      </a>
+    </td>
+    <td class="px-3 py-3 text-right">${t.p}</td>
+    <td class="px-3 py-3 text-right text-gray-400">${t.q}</td>
+    <td class="px-3 py-3 text-right">${t.mc}</td>
+    <td class="px-3 py-3 text-right text-gray-400">${t.tax}</td>
+    <td class="px-3 py-3 text-right">${t.vol}</td>
+    <td class="px-3 py-3 text-right">${t.h}</td>
+    <td class="px-3 py-3 text-right text-gray-400">${t.liq}</td>
+    ${t.c.map(v=>`<td class="px-3 py-3 text-right ${pct(v)}">${v}</td>`).join("")}
+    <td class="px-3 py-3 text-right"><span class="cursor-pointer text-xs text-gray-500 underline hover:text-gray-300">税收详情</span></td>
+  </tr>`;
+}
+
+function stockRowHtml(t){
+  return `<tr class="border-b border-[#1A1B1D] hover:bg-white/[0.02]">
+    <td class="px-3 py-3">
+      <div class="flex items-center gap-2.5">
+        ${stockAvatar(t,"h-8 w-8")}
+        <div class="leading-tight">
+          <div class="flex items-center gap-1.5 font-semibold">$${t.s}
+            <span class="rounded-sm px-1 text-[9px] font-bold text-black" style="background:var(--accent)">${t.tag}</span>
+          </div>
+          <div class="text-xs text-gray-500">${t.n}</div>
+        </div>
+      </div>
+    </td>
+    <td class="px-3 py-3 text-right">${t.p}</td>
+    <td class="px-3 py-3 text-right text-gray-400">${t.q}</td>
+    <td class="px-3 py-3 text-right">${t.mc}</td>
+    <td class="px-3 py-3 text-right text-gray-400">${t.tax}</td>
+    <td class="px-3 py-3 text-right">${t.vol}</td>
+    <td class="px-3 py-3 text-right">${t.h}</td>
+    <td class="px-3 py-3 text-right text-gray-400">${t.liq}</td>
+    ${t.c.map(v=>`<td class="px-3 py-3 text-right ${pct(v)}">${v}</td>`).join("")}
+    <td class="px-3 py-3 text-right"><span class="cursor-pointer text-xs text-gray-500 underline hover:text-gray-300">底池详情</span></td>
+  </tr>`;
+}
+
+function cardHtml(t){
+  return `<div class="rounded-xl border border-[#303236] bg-[#0B0C0C] p-4">
+    <div class="flex items-center justify-between">
+      <a href="token.html?addr=${fakeAddr(t.s)}&name=${encodeURIComponent(t.n)}&symbol=${t.s}" class="flex items-center gap-2.5 hover:opacity-80">${avatar(t,"h-9 w-9")}
+        <div class="leading-tight"><div class="flex items-center gap-1.5 font-semibold">$${t.s} ${t.g?'<span class="rounded-sm px-1 text-[9px] font-bold text-black" style="background:var(--accent)">G</span>':""}</div>
+        <div class="text-xs text-gray-500">${t.n}</div></div>
+      </a>
+      <div class="text-right"><div class="num">${t.p}</div><div class="text-[11px] ${pct(t.c[3])}">${t.c[3]}</div></div>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-2 border-t border-[#1A1B1D] pt-3 text-center text-[11px]">
+      <div><div class="text-gray-500">市值</div><div class="num mt-0.5">${t.mc}</div></div>
+      <div><div class="text-gray-500">24h 交易额</div><div class="num mt-0.5">${t.vol}</div></div>
+      <div><div class="text-gray-500">持有人</div><div class="num mt-0.5">${t.h}</div></div>
+    </div>
+  </div>`;
+}
+
+function stockCardHtml(t){
+  return `<div class="rounded-xl border border-[#303236] bg-[#0B0C0C] p-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2.5">${stockAvatar(t,"h-9 w-9")}
+        <div class="leading-tight"><div class="flex items-center gap-1.5 font-semibold">$${t.s} <span class="rounded-sm px-1 text-[9px] font-bold text-black" style="background:var(--accent)">${t.tag}</span></div>
+        <div class="text-xs text-gray-500">${t.n}</div></div>
+      </div>
+      <div class="text-right"><div class="num">${t.p}</div><div class="text-[11px] ${pct(t.c[3])}">${t.c[3]}</div></div>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-2 border-t border-[#1A1B1D] pt-3 text-center text-[11px]">
+      <div><div class="text-gray-500">计价代币</div><div class="num mt-0.5">${t.q}</div></div>
+      <div><div class="text-gray-500">24h 交易额</div><div class="num mt-0.5">${t.vol}</div></div>
+      <div><div class="text-gray-500">LIQ</div><div class="num mt-0.5">${t.liq}</div></div>
+    </div>
+  </div>`;
+}
+
+const rows = document.getElementById("rows");
+const grid = document.getElementById("gridView");
+const emptyNote = document.getElementById("emptyNote");
+let currentTab = "热门";
+
+function render(){
+  const isStocks = currentTab === "股票";
+  const data = isStocks ? STOCKS : TOKENS;
+  const unsupported = (currentTab !== "热门" && currentTab !== "股票");
+  emptyNote.style.display = unsupported ? "block" : "none";
+  if (!unsupported && data.length === 0) {
+    const msg = isStocks ? "股票底池接入中…" : "暂无发射记录 —— 成为第一个发币的人";
+    rows.innerHTML = `<tr><td colspan="13" class="px-3 py-12 text-center text-xs text-gray-500">${msg}</td></tr>`;
+    grid.innerHTML = `<p class="col-span-full rounded-xl border border-[#303236] bg-[#0B0C0C] py-12 text-center text-xs text-gray-500">${msg}</p>`;
+    return;
+  }
+  rows.innerHTML = data.map(isStocks ? stockRowHtml : rowHtml).join("");
+  grid.innerHTML = data.map(isStocks ? stockCardHtml : cardHtml).join("");
+}
+render();
+
+// ---------- 标签切换 ----------
+document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{
+  currentTab = btn.textContent.trim();
+  document.querySelectorAll(".tab").forEach(b=>{ b.style.background="#070808"; b.style.color="#9CA3AF"; b.style.border="1px solid #303236"; b.style.fontWeight="400"; });
+  btn.style.background="var(--accent)"; btn.style.color="#000"; btn.style.borderColor="var(--accent)"; btn.style.fontWeight="600";
+  render();
+}));
+
+// ---------- 列表/网格切换 ----------
+const listBtn = document.getElementById("listBtn"), gridBtn = document.getElementById("gridBtn");
+const listView = document.getElementById("listView"), gridView = document.getElementById("gridView");
+const setView = (mode)=>{
+  const on = (b)=>{ b.style.background="var(--accent)"; b.style.color="#000"; b.style.borderColor="var(--accent)"; b.style.fontWeight="600"; };
+  const off= (b)=>{ b.style.background="#070808"; b.style.color="#9CA3AF"; b.style.border="1px solid #303236"; b.style.fontWeight="400"; };
+  if(mode==="list"){ on(listBtn); off(gridBtn); listView.style.display=""; gridView.style.display="none"; }
+  else { on(gridBtn); off(listBtn); listView.style.display="none"; gridView.style.display="grid"; }
+};
+listBtn.addEventListener("click",()=>setView("list"));
+gridBtn.addEventListener("click",()=>setView("grid"));
+
+// ---------- 发射模式（单选圆钮） ----------
+let currentMode = "tax";
+document.querySelectorAll(".mode").forEach(btn=>btn.addEventListener("click",()=>{
+  currentMode = btn.dataset.mode;
+  document.querySelectorAll(".mode").forEach(b=>{
+    b.style.borderColor = "#303236"; b.style.background = "#070808";
+    b.querySelector(".mode-radio").style.borderColor = "#303236";
+    b.querySelector(".mode-dot").style.background = "transparent";
+  });
+  btn.style.borderColor = "var(--accent)"; btn.style.background = "rgba(224,160,0,0.05)";
+  btn.querySelector(".mode-radio").style.borderColor = "var(--accent)";
+  btn.querySelector(".mode-dot").style.background = "var(--accent)";
+  document.getElementById("taxPanel").style.display = currentMode==="tax" ? "" : "none";
+  document.getElementById("zeroTaxNote").style.display = currentMode==="tax" ? "none" : "block";
+}));
+
+// ---------- 支付代币（分类：精选/全部/股票代币/Pre-IPO） ----------
+// 股票池完整列表（与 FLAP 股票代币分类一致，90 个）
+const STOCK_QUOTES = [
+  ["XAUT","黄金 Tether Gold"],["SPCXB","SpaceX"],["SKHYB","SK海力士"],["SPYB","标普500 ETF"],
+  ["QQQB","纳斯达克100"],["NVDAB","英伟达"],["AAPLB","苹果"],["TSLAB","特斯拉"],
+  ["wXIAOx","小米（封装）"],["WENB","温蒂汉堡"],["PDDB","拼多多"],["FWDIB","Forward Industries"],
+  ["SHAZB","SharonAI"],["ADBEB","Adobe"],["HPEB","慧与科技"],["ZMB","Zoom"],
+  ["wTCENTx","腾讯（封装）"],["wPOPMTx","泡泡玛特（封装）"],["AGPUB","Axe Compute"],["CYPHB","Cypherpunk"],
+  ["AMCB","AMC院线"],["aWDH","水滴公司"],["MSFTB","微软"],["GOOGLB","谷歌"],
+  ["HOODB","Robinhood"],["BABAB","阿里巴巴"],["GMEB","GameStop"],["NFLXB","Netflix"],
+  ["MSTRB","Strategy"],["DJTB","特朗普传媒"],["SOXSB","半导体3倍做空"],["SOXLB","半导体3倍做多"],
+  ["MRNAB","Moderna"],["FLNCB","Fluence Energy"],["BMNRB","BitMine"],["BNCB","CEA Industries"],
+  ["FXIon","中国大盘ETF"],["BILIon","Bilibili"],["SQQQB","纳指3倍做空"],["SMCIB","超微电脑"],
+  ["IRENB","IREN"],["ASMLB","ASML"],["ASTSB","AST SpaceMobile"],["COHRB","Coherent"],
+  ["CRDOB","Credo"],["USARB","USA Rare Earth"],["ALABB","Astera Labs"],["CRCLB","Circle"],
+  ["MUB","美光"],["SNDKB","闪迪"],["AMDB","AMD"],["EWYB","韩国ETF"],
+  ["INTCB","英特尔"],["LITEB","Lumentum"],["METAB","Meta"],["PLTRB","Palantir"],
+  ["BEB","Bloom Energy"],["AMZNB","亚马逊"],["DELLB","戴尔"],["AMATB","应用材料"],
+  ["PYPLB","PayPal"],["GSB","高盛"],["SMHB","半导体ETF"],["QCOMB","高通"],
+  ["COINB","Coinbase"],["WDCB","西部数据"],["GLWB","康宁"],["NBISB","Nebius"],
+  ["DRAMB","DRAM"],["CBRSB","CBRS"],["ARMB","ARM"],["AAOIB","AAOI"],
+  ["RKLBB","Rocket Lab"],["NOKB","诺基亚"],["TSMB","台积电"],["AVGOB","博通"],
+  ["MRVLB","Marvell"],["IBMB","IBM"],["KORUB","韩国3倍做多"],["AXTIB","AXT"],
+  ["CRWVB","CRWV"],["MUUB","MUU"],["MVLLB","MVLL"],["SNXXB","SNXX"],
+  ["INTWB","INTW"],["TQQQB","纳指3倍做多"],["QNTB","QNT"],["ORCLB","甲骨文"],
+  ["STXB","希捷"],["CRWDB","CrowdStrike"],
+];
+
+const STABLES = [ { s:"BNB" }, { s:"USDT" }, { s:"USDC" }, { s:"MYX" }, { s:"USD1" }, { s:"SOL" } ];
+const STOCK_OBJS = STOCK_QUOTES.map(([s,n]) => ({ s, n }));
+
+const QUOTE_DATA = {
+  featured: [ { s:"BNB" }, { s:"USDT" }, { s:"USDC" }, { s:"MYX" } ],
+  all: [...STABLES, ...STOCK_OBJS],
+  stocks: STOCK_OBJS,
+  preipo: [],
+};
+
+let currentQuote = "BNB";
+let currentCat = "featured";
+const quoteGrid = document.getElementById("quoteGrid");
+const quoteEmpty = document.getElementById("quoteEmpty");
+
+function quoteBtnHtml(q){
+  const isStock = !!q.n;
+  const selected = currentQuote === q.s;
+  const border = selected ? "var(--accent)" : (isStock ? "#303236" : "#84888C");
+  const color = selected ? "var(--accent)" : (isStock ? "#9CA3AF" : "#FFFFFF");
+  const bg = selected ? "rgba(224,160,0,0.05)" : "transparent";
+  const avatar = `<span class="flex h-5 w-5 items-center justify-center rounded-full border text-[9px] font-bold" style="border-color:${selected?'var(--accent)':'rgba(224,160,0,0.4)'};color:var(--accent)">${q.s[0]}</span>`;
+  return `<button type="button" data-symbol="${q.s}" class="quote rounded-[2px] border px-3 py-2 text-sm transition"
+    style="background:${bg};border-color:${border};color:${color}">
+    <span class="flex items-center gap-1.5">${isStock?avatar:''}${q.s}${q.n?`<span class="text-[10px] opacity-60">${q.n}</span>`:''}</span>
+  </button>`;
+}
+
+function renderQuotes(){
+  const list = QUOTE_DATA[currentCat];
+  quoteEmpty.style.display = list.length === 0 ? "block" : "none";
+  quoteGrid.innerHTML = list.map(quoteBtnHtml).join("");
+  quoteGrid.querySelectorAll(".quote").forEach(btn=>btn.addEventListener("click",()=>{
+    currentQuote = btn.dataset.symbol;
+    renderQuotes();
+  }));
+}
+document.querySelectorAll(".qcat").forEach(btn=>btn.addEventListener("click",()=>{
+  currentCat = btn.dataset.cat;
+  document.querySelectorAll(".qcat").forEach(b=>b.style.color = "#484B51");
+  btn.style.color = "var(--accent)";
+  renderQuotes();
+}));
+renderQuotes();
+
+// ---------- 税率滑块 ----------
+const buyTax = document.getElementById("buyTax"), sellTax = document.getElementById("sellTax");
+buyTax.addEventListener("input", ()=>document.getElementById("buyTaxVal").textContent = buyTax.value + "%");
+sellTax.addEventListener("input", ()=>document.getElementById("sellTaxVal").textContent = sellTax.value + "%");
+
+// ---------- 保护期 ----------
+let protectLabel = "关闭";
+let protectSec = 0; // 实际秒数（传给后端 antiFarmerDuration）
+document.querySelectorAll(".protect").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".protect").forEach(b=>{
+    b.style.background="transparent"; b.style.borderColor="#303236"; b.style.color="#9CA3AF";
+  });
+  btn.style.background="rgba(224,160,0,0.05)"; btn.style.borderColor="var(--accent)"; btn.style.color="var(--accent)";
+  protectLabel = btn.textContent.trim();
+  protectSec = Number(btn.dataset.protect || 0);
+}));
+
+// ---------- DEV 优先购买窗口 ----------
+let devLabel = "关闭";
+document.querySelectorAll(".devwin").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".devwin").forEach(b=>{
+    b.style.background="transparent"; b.style.borderColor="#303236"; b.style.color="#9CA3AF";
+  });
+  btn.style.background="rgba(224,160,0,0.05)"; btn.style.borderColor="var(--accent)"; btn.style.color="var(--accent)";
+  devLabel = btn.textContent.trim();
+}));
+
+// ---------- 税收分配 ----------
+const DIST_KEYS = ["slCreator", "slBurn", "slDividend", "slLiquidity"];
+const DIST_LABELS = ["dCreator", "dBurn", "dDividend", "dLiquidity"];
+function distVals(){ return DIST_KEYS.map(id => Number(document.getElementById(id).value)); }
+function refreshDist(){
+  const vals = distVals();
+  const sum = vals.reduce((a,b)=>a+b,0);
+  const unalloc = document.getElementById("unalloc");
+  unalloc.textContent = "未分配: " + (100 - sum) + "%";
+  unalloc.style.color = sum === 100 ? "var(--accent)" : "#F87171";
+  vals.forEach((v,i) => document.getElementById(DIST_LABELS[i]).textContent = v + "%");
+}
+DIST_KEYS.forEach(id => document.getElementById(id).addEventListener("input", refreshDist));
+document.querySelectorAll(".dist-preset").forEach(btn=>btn.addEventListener("click",()=>{
+  const pcts = btn.dataset.pcts.split(",").map(Number);
+  DIST_KEYS.forEach((id,i) => document.getElementById(id).value = pcts[i]);
+  refreshDist();
+}));
+document.getElementById("distReset").addEventListener("click",()=>{
+  DIST_KEYS.forEach((id,i) => document.getElementById(id).value = i === 0 ? 100 : 0);
+  refreshDist();
+});
+refreshDist();
+
+// ---------- 保留 CA 开关 ----------
+let reserveOn = false;
+const reserveToggle = document.getElementById("reserveToggle");
+const reserveKnob = document.getElementById("reserveKnob");
+const reserveDot = document.getElementById("reserveDot");
+reserveToggle.addEventListener("click",()=>{
+  reserveOn = !reserveOn;
+  reserveKnob.style.background = reserveOn ? "var(--accent)" : "#070808";
+  reserveKnob.style.borderColor = reserveOn ? "var(--accent)" : "#303236";
+  reserveDot.style.background = reserveOn ? "#070808" : "#303236";
+  reserveDot.style.transform = reserveOn ? "translateX(16px)" : "translateX(0)";
+  document.getElementById("caBox").style.display = "none";
+  // 提前挖出（预生成）合约地址：开启保留 CA 即展示可预测 CA
+  const preview = document.getElementById("caPreview");
+  const addrEl = document.getElementById("caPreviewAddr");
+  if(reserveOn){
+    preview.style.display = "block";
+    if(!addrEl.textContent){
+      let hex = "0x";
+      for(let i=0;i<40;i++) hex += "0123456789abcdef"[Math.floor(Math.random()*16)];
+      addrEl.textContent = hex;
+    }
+  } else {
+    preview.style.display = "none";
+  }
+});
+
+// ---------- Logo 上传与预览 ----------
+const logoInput = document.getElementById("logoInput");
+const logoBox = document.getElementById("logoBox");
+let logoDataUrl = ""; // 提交给后端的完整 dataURL（后端上传到 FLAP IPFS）
+
+function resetLogoBox() {
+  logoBox.innerHTML = "上传 PNG";
+  logoBox.style.borderStyle = "dashed";
+  logoBox.style.borderColor = "#303236";
+}
+
+logoInput.addEventListener("change", () => {
+  const file = logoInput.files && logoInput.files[0];
+  if (!file) { logoDataUrl = ""; resetLogoBox(); return; }
+  if (file.size > 1_500_000) {
+    showErr("图片过大，上限 1.5MB");
+    logoInput.value = "";
+    logoDataUrl = "";
+    resetLogoBox();
+    return;
+  }
+  // 预览用 objectURL（不占内存）
+  const url = URL.createObjectURL(file);
+  logoBox.innerHTML = `<img src="${url}" alt="logo preview" class="h-full w-full object-cover"/>`;
+  logoBox.style.borderStyle = "solid";
+  logoBox.style.borderColor = "var(--accent)";
+  // 提交用 dataURL（后端上传 IPFS）
+  const reader = new FileReader();
+  reader.onload = () => { logoDataUrl = String(reader.result || ""); };
+  reader.readAsDataURL(file);
+});
+
+// ---------- 真实钱包连接（EIP-6963 多钱包检测） ----------
+const connectBtn = document.getElementById("connectBtn");
+const walletModal = document.getElementById("walletModal");
+const walletList = document.getElementById("walletList");
+const walletListWrap = document.getElementById("walletListWrap");
+const walletStatus = document.getElementById("walletStatus");
+const walletAddr = document.getElementById("walletAddr");
+const walletChain = document.getElementById("walletChain");
+const disconnectBtn = document.getElementById("disconnectBtn");
+document.getElementById("walletClose").addEventListener("click", closeWalletModal);
+walletModal.addEventListener("click", (e) => { if (e.target === walletModal) closeWalletModal(); });
+function openWalletModal() { walletModal.style.display = "flex"; }
+function closeWalletModal() { walletModal.style.display = "none"; }
+
+const eip6963Providers = [];
+let currentProvider = null;
+let currentAccount = null;
+let currentChainId = null;
+
+window.addEventListener("eip6963:announceProvider", (e) => {
+  if (!eip6963Providers.some((p) => p.info.uuid === e.detail.info.uuid)) {
+    eip6963Providers.push(e.detail);
+  }
+  renderWalletList();
+});
+window.dispatchEvent(new Event("eip6963:requestProvider"));
+setTimeout(renderWalletList, 500); // 部分钱包延迟广播
+
+const shortWallet = (a) => a.slice(0, 6) + "…" + a.slice(-4);
+
+function walletItems() {
+  const items = [...eip6963Providers];
+  if (window.ethereum && !items.some((p) => p.provider === window.ethereum)) {
+    items.unshift({ info: { uuid: "injected", name: "浏览器钱包 Injected", icon: "" }, provider: window.ethereum });
+  }
+  return items;
+}
+
+function renderWalletList() {
+  const items = walletItems();
+  if (!items.length) {
+    walletList.innerHTML = `<div class="rounded-lg border border-[#303236] bg-[#070808] p-4 text-center text-xs text-gray-500">
+      未检测到钱包插件<br/><span class="text-gray-600">安装后刷新页面即可自动识别</span>
+      <div class="mt-3 flex flex-wrap justify-center gap-2">
+        <a href="https://metamask.io/download/" target="_blank" rel="noreferrer" class="rounded-md border border-[#303236] px-2.5 py-1 hover:border-[#E0A000]">MetaMask</a>
+        <a href="https://www.okx.com/web3" target="_blank" rel="noreferrer" class="rounded-md border border-[#303236] px-2.5 py-1 hover:border-[#E0A000]">OKX</a>
+        <a href="https://trustwallet.com/download" target="_blank" rel="noreferrer" class="rounded-md border border-[#303236] px-2.5 py-1 hover:border-[#E0A000]">Trust</a>
+        <a href="https://www.binance.com/en/download" target="_blank" rel="noreferrer" class="rounded-md border border-[#303236] px-2.5 py-1 hover:border-[#E0A000]">Binance</a>
+      </div></div>`;
+    return;
+  }
+  walletList.innerHTML = items.map((p, i) => {
+    const name = p.info?.name || "钱包";
+    const icon = p.info?.icon || "";
+    return `<button type="button" class="wallet-item flex w-full items-center gap-3 rounded-lg border border-[#303236] bg-[#070808] px-4 py-3 text-left transition hover:border-[#E0A000]">
+      ${icon ? `<img src="${icon}" alt="" class="h-7 w-7 rounded-full object-contain"/>` : `<span class="flex h-7 w-7 items-center justify-center rounded-full border border-[#E0A000]/40 text-[10px] font-bold" style="color:var(--accent)">W</span>`}
+      <span class="text-sm font-semibold">${name}</span>
+      ${i === 0 ? `<span class="ml-auto text-[10px] text-gray-600">推荐</span>` : ""}
+    </button>`;
+  }).join("");
+  document.querySelectorAll(".wallet-item").forEach((btn, i) => {
+    btn.addEventListener("click", () => connectWallet(walletItems()[i].provider));
+  });
+}
+
+async function connectWallet(provider) {
+  try {
+    const accounts = await provider.request({ method: "eth_requestAccounts" });
+    currentProvider = provider;
+    currentAccount = accounts[0];
+    try { currentChainId = await provider.request({ method: "eth_chainId" }); } catch { currentChainId = null; }
+    updateWalletUI();
+    closeWalletModal();
+    if (provider.on) {
+      provider.on("accountsChanged", (accs) => { currentAccount = accs[0] || null; updateWalletUI(); });
+      provider.on("chainChanged", (cid) => { currentChainId = cid; updateWalletUI(); });
+      provider.on("disconnect", () => { currentAccount = null; currentProvider = null; currentChainId = null; updateWalletUI(); });
+    }
+  } catch (e) {
+    console.warn("[wallet] 用户拒绝或连接失败:", e && e.message);
+  }
+}
+
+function updateWalletUI() {
+  if (currentAccount) {
+    const chainLabel = currentChainId === "0x38" ? "BSC" : currentChainId === "0x61" ? "BSC 测试网" : "未知链";
+    connectBtn.textContent = shortWallet(currentAccount);
+    connectBtn.style.background = "#070808";
+    connectBtn.style.color = "var(--accent)";
+    connectBtn.style.border = "1px solid var(--accent)";
+    connectBtn.style.fontWeight = "400";
+    connectBtn.title = chainLabel;
+    walletStatus.style.display = "block";
+    walletAddr.textContent = currentAccount;
+    walletChain.textContent = chainLabel + "（请切换到 BSC 链ID 56）";
+    walletListWrap.style.display = "none";
+  } else {
+    connectBtn.textContent = "连接钱包";
+    connectBtn.style.background = "var(--accent)";
+    connectBtn.style.color = "#000";
+    connectBtn.style.border = "none";
+    connectBtn.style.fontWeight = "600";
+    connectBtn.title = "";
+    walletStatus.style.display = "none";
+    walletListWrap.style.display = "block";
+  }
+}
+
+connectBtn.addEventListener("click", () => {
+  if (currentAccount) {
+    openWalletModal(); // 已连接：弹窗内可断开
+    renderWalletList();
+    updateWalletUI();
+  } else {
+    openWalletModal();
+    renderWalletList();
+  }
+});
+
+disconnectBtn.addEventListener("click", () => {
+  currentAccount = null; currentProvider = null; currentChainId = null;
+  updateWalletUI();
+  renderWalletList();
+  closeWalletModal();
+});
+
+// ---------- 佣金接收地址：一键填入中继合约 ----------
+const useRelayerBtn = document.getElementById("useRelayerBtn");
+if (useRelayerBtn) {
+  useRelayerBtn.addEventListener("click", () => {
+    document.getElementById("inTaxWallet").value = "0x217264D477fC576B2768E2EABE7e8408CB17F39F";
+  });
+}
+
+// ============ 发射方式：隐私发射 / 自己创建 ============
+let launchMethod = "privacy";
+
+document.querySelectorAll(".lmode").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    launchMethod = btn.dataset.lm;
+    document.querySelectorAll(".lmode").forEach((b) => {
+      b.style.borderColor = "#303236";
+      b.style.background = "#070808";
+      b.querySelector(".lmode-radio").style.borderColor = "#303236";
+      b.querySelector(".lmode-dot").style.background = "transparent";
+    });
+    btn.style.borderColor = "var(--accent)";
+    btn.style.background = "rgba(224,160,0,0.05)";
+    btn.querySelector(".lmode-radio").style.borderColor = "var(--accent)";
+    btn.querySelector(".lmode-dot").style.background = "var(--accent)";
+    document.getElementById("quoteAmtWrap").style.display = launchMethod === "self" ? "block" : "none";
+    const hint = document.getElementById("launchHint");
+    if (hint) {
+      hint.innerHTML = launchMethod === "self"
+        ? "自己创建 · 创建者=你本人 · 你付 Gas，确认后由中继合约全额返还"
+        : '0 手续费 · 由 Vortex 中继合约代付 · 代币直接上线 FLAP<br/><a href="https://bscscan.com/address/0x217264D477fC576B2768E2EABE7e8408CB17F39F" target="_blank" rel="noreferrer" class="underline" style="color:var(--accent)">查看中继合约 ↗</a>';
+    }
+  });
+});
+
+/** 模式 B：用户自己发币（创建者=用户本人），随后申请 Gas 全额返还 */
+async function submitSelfCreated(turnstileToken) {
+  if (submitting) return;
+  const payload = collectForm();
+  if (!payload) { if (tsWidgetId !== null) window.turnstile.reset(tsWidgetId); return; }
+  if (!currentProvider || !currentAccount) { showErr("请先连接钱包"); return; }
+
+  submitting = true;
+  launchBtn.disabled = true;
+  launchBtn.style.opacity = 0.5;
+  txBox.style.display = "none";
+  errBox.style.display = "none";
+
+  try {
+    // 优先买入金额
+    const quoteAmtBnb = (document.getElementById("quoteAmt").value || "0").trim();
+    let quoteAmtWei = "0";
+    if (quoteAmtBnb && parseFloat(quoteAmtBnb) > 0) {
+      quoteAmtWei = BigInt(Math.round(parseFloat(quoteAmtBnb) * 1e18)).toString();
+    }
+
+    // 1) 后端磨盐 + 上传 LOGO，返回可直接发送的 calldata
+    launchBtn.textContent = "准备参数…";
+    const prepRes = await fetchT(API_BASE + "/api/prepare", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, quoteAmt: quoteAmtWei, turnstileToken }),
+    }, 90000);
+    const prep = await prepRes.json();
+    if (!prep.ok) { showErr(mapLaunchError(prep.error), 9000); return; }
+
+    // 2) 由用户自己签名发送（创建者=用户本人）
+    launchBtn.textContent = "请在钱包确认…";
+    const txHash = await currentProvider.request({
+      method: "eth_sendTransaction",
+      params: [{
+        from: currentAccount,
+        to: prep.to,
+        data: prep.data,
+        value: "0x" + BigInt(prep.value).toString(16),
+      }],
+    });
+
+    // 3) 等待链上确认
+    launchBtn.textContent = "等待链上确认…";
+    showErr("交易已发出（" + txHash.slice(0, 10) + "…），等待确认…", 0);
+    let receipt = null;
+    for (let i = 0; i < 60 && !receipt; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      try {
+        receipt = await currentProvider.request({ method: "eth_getTransactionReceipt", params: [txHash] });
+      } catch { /* 继续重试 */ }
+    }
+    if (!receipt) { showErr("确认超时，请用交易哈希在区块浏览器查询", 9000); return; }
+    if (receipt.status !== "0x1") { showErr("交易回滚失败（Gas 已消耗）", 9000); return; }
+
+    // 4) 申请 Gas 全额返还（经中继合约）
+    launchBtn.textContent = "申请 Gas 返还…";
+    const refundRes = await fetchT(API_BASE + "/api/refund", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ txHash, userAddress: currentAccount, name: payload.name, symbol: payload.symbol }),
+    }, 90000);
+    const refund = await refundRes.json();
+
+    // 5) 展示结果
+    const token = refund.token || "";
+    document.getElementById("txSummary").innerHTML =
+      "自己创建 · 创建者 = <b>" + currentAccount.slice(0, 6) + "…" + currentAccount.slice(-4) + "</b>" +
+      (quoteAmtWei !== "0" ? " · 已优先买入 " + quoteAmtBnb + " BNB" : "");
+    document.getElementById("txTokenAddr").textContent = token || "—";
+    document.getElementById("txHashText").textContent = txHash.slice(0, 10) + "…" + txHash.slice(-6);
+    document.getElementById("txHashLink").href = (refund.explorer || "https://bscscan.com") + "/tx/" + txHash;
+    document.getElementById("txFlapLink").href = "https://flap.sh/bnb/" + token;
+    document.getElementById("txDemoNote").style.display = "none";
+
+    const refundNote = document.getElementById("txRefund");
+    if (refund.ok) {
+      refundNote.style.display = "block";
+      refundNote.innerHTML = "💰 <b>Gas 已全额返还</b>：" + refund.refundedBnb + " BNB 已由中继合约退回你的钱包" +
+        (refund.refundTxHash ? '<br/><span class="text-gray-500">返还交易: ' + refund.refundTxHash.slice(0, 10) + "…" + refund.refundTxHash.slice(-6) + "</span>" : "");
+    } else {
+      refundNote.style.display = "block";
+      refundNote.innerHTML = "⚠️ 代币已成功创建，但 Gas 返还待处理：" + mapLaunchError(refund.error) +
+        '<br/><span class="text-gray-500">请把交易哈希发给客服，我们会手动补返。</span>';
+    }
+
+    txBox.style.display = "block";
+    txBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    loadBoard();
+  } catch (e) {
+    showErr("失败：" + (e && e.message ? e.message : e), 9000);
+  } finally {
+    submitting = false;
+    launchBtn.disabled = false;
+    launchBtn.style.opacity = 1;
+    launchBtn.textContent = "一键发币 · Launch on FLAP";
+    if (tsWidgetId !== null) window.turnstile.reset(tsWidgetId);
+  }
+}
+
+/** 错误码 → 中文提示（两种模式共用） */
+function mapLaunchError(code) {
+  const map = {
+    TURNSTILE_FAILED: "人机验证失败，请重试",
+    RELAYER_LOW_BALANCE: "代付钱包余额不足，请联系管理员",
+    GAS_PRICE_TOO_HIGH: "当前网络 Gas 价格过高，已拒绝（保护资金），请稍后重试",
+    GAS_LIMIT_EXCEEDED: "Gas 估算超限，已拒绝（防恶意拉高 Gas）",
+    COST_EXCEEDED: "单笔成本超限，已拒绝",
+    DAILY_BUDGET_EXCEEDED: "今日代付额度已用完，请明天再试",
+    RATE_LIMIT_IP: "请求过于频繁，请稍后再试",
+    RATE_LIMIT_WALLET: "该钱包今日发射次数已达上限（3 次）",
+    ALREADY_REFUNDED: "这笔交易已经返还过 Gas 了",
+    NOT_A_LAUNCH: "该交易不是发币交易，无法返还",
+    SENDER_MISMATCH: "交易发起者与你的钱包不一致",
+    CREATOR_MISMATCH: "该代币的创建者不是你的钱包",
+    TX_NOT_FOUND: "还没查到这笔交易，请稍等片刻再试",
+    BUSY: "服务繁忙，请稍后重试",
+  };
+  return map[code] || code || "操作失败";
+}
+
+const launchBtn = document.getElementById("launchBtn");
+const txBox = document.getElementById("txBox");
+const caBox = document.getElementById("caBox");
+const errBox = document.getElementById("errBox");
+
+// ============ 真实发币：Turnstile 真人验证 + 调 Vortex 中继器 ============
+const TURNSTILE_SITE_KEY = "0x4AAAAAAFRdRGOkuau7pR3b"; // Cloudflare Turnstile Site Key
+let tsWidgetId = null;
+let submitting = false;
+
+function showErr(msg, ms = 4000) {
+  errBox.textContent = msg;
+  errBox.style.display = "block";
+  if (ms) setTimeout(() => (errBox.style.display = "none"), ms);
+}
+
+/** 表单校验：返回 API 参数对象，或 null（并提示错误） */
+function collectForm() {
+  const name = (document.getElementById("inName").value || "").trim();
+  const symbol = (document.getElementById("inSymbol").value || "").trim().toUpperCase();
+  const description = (document.getElementById("inDesc").value || "").trim();
+
+  if (!currentAccount) { openWalletModal(); showErr("请先连接钱包"); return null; }
+  if (!name || name.length > 32) { showErr("代币名称需 1–32 字符"); return null; }
+  if (!/^[A-Z0-9]{1,10}$/.test(symbol)) { showErr("代币符号需 1–10 位字母或数字"); return null; }
+  if (currentQuote !== "BNB") { showErr(currentQuote + " 计价即将支持，当前仅 BNB 计价"); return null; }
+
+  const isTax = currentMode === "tax";
+  let dist = { mktPct: 0, deflationPct: 0, dividendPct: 0, lpPct: 0 };
+  if (isTax) {
+    const vals = distVals();
+    if (vals.reduce((a, b) => a + b, 0) !== 100) { showErr("税收分配合计必须为 100%"); return null; }
+    dist = { mktPct: vals[0], deflationPct: vals[1], dividendPct: vals[2], lpPct: vals[3] };
+  }
+
+  const taxWallet = (document.getElementById("inTaxWallet").value || "").trim();
+
+  return {
+    name, symbol, description,
+    logo: logoDataUrl, // 后端上传到 FLAP IPFS 作为代币封面
+    userAddress: currentAccount,
+    tokenType: isTax ? "tax" : "standard",   // 注意：relayer 只把 "standard" 当非税
+    buyTaxPct: isTax ? Number(document.getElementById("buyTax").value) : 0,
+    sellTaxPct: isTax ? Number(document.getElementById("sellTax").value) : 0,
+    ...dist,
+    taxWallet: taxWallet || currentAccount,
+    protectSeconds: protectSec,   // 由保护期按钮写入
+  };
+}
+
+/** 懒加载 Turnstile 脚本（页面加载时完全不请求，点发币才加载） */
+function ensureTurnstile() {
+  return new Promise((resolve, reject) => {
+    if (window.turnstile) return resolve();
+    if (window.__tsLoading) {
+      // 已有加载中，轮询等待
+      let n = 0;
+      const t = setInterval(() => {
+        if (window.turnstile) { clearInterval(t); resolve(); }
+        else if (++n > 100) { clearInterval(t); reject(new Error("人机验证脚本加载超时，请检查网络后重试")); }
+      }, 200);
+      return;
+    }
+    window.__tsLoading = true;
+    const sc = document.createElement("script");
+    sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    sc.async = true;
+    sc.onload = () => resolve();
+    sc.onerror = () => { window.__tsLoading = false; reject(new Error("人机验证脚本加载失败（网络受限），请检查网络后重试")); };
+    document.head.appendChild(sc);
+  });
+}
+
+/** 显示并渲染 Turnstile，验证通过后回调 submit */
+async function startVerification() {
+  const wrap = document.getElementById("turnstileWrap");
+  wrap.style.display = "block";
+  document.getElementById("tsHint").textContent = "正在加载人机验证…";
+  try {
+    await ensureTurnstile();
+    document.getElementById("tsHint").textContent = "完成人机验证后自动提交发币请求";
+  } catch (e) {
+    document.getElementById("tsHint").textContent = "";
+    wrap.style.display = "none";
+    showErr(e.message, 9000);
+    return;
+  }
+
+  wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  if (tsWidgetId === null) {
+    tsWidgetId = window.turnstile.render("#turnstileBox", {
+      sitekey: TURNSTILE_SITE_KEY,
+      theme: "dark",
+      callback: (token) => submitLaunch(token),
+      "error-callback": () => showErr("人机验证出错，请刷新页面重试"),
+      "expired-callback": () => { if (tsWidgetId !== null) window.turnstile.reset(tsWidgetId); },
+    });
+  } else {
+    window.turnstile.reset(tsWidgetId);
+  }
+}
+
+/** 提交发币请求到中继器（中继器代付 FLAP 创建费并上链） */
+async function submitLaunch(turnstileToken) {
+  if (launchMethod === "self") return submitSelfCreated(turnstileToken);
+  if (submitting) return;
+  const payload = collectForm();
+  if (!payload) { if (tsWidgetId !== null) window.turnstile.reset(tsWidgetId); return; }
+
+  submitting = true;
+  launchBtn.disabled = true;
+  launchBtn.style.opacity = 0.5;
+  launchBtn.textContent = "代付上链中…";
+  txBox.style.display = "none";
+  errBox.style.display = "none";
+
+  try {
+    const res = await fetchT(API_BASE + "/api/launch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, turnstileToken }),
+    }, 90000); // 上链较慢，给 90 秒
+    const data = await res.json();
+
+    if (!data.ok) {
+      const map = {
+        TURNSTILE_FAILED: "人机验证失败（若后端 Secret Key 未配置也会如此）",
+        RELAYER_LOW_BALANCE: "代付钱包余额不足，请联系管理员",
+        GAS_PRICE_TOO_HIGH: "当前网络 Gas 价格过高，已拒绝代付（保护资金），请稍后重试",
+        GAS_LIMIT_EXCEEDED: "Gas 估算超限，已拒绝（防恶意拉高 Gas）",
+        COST_EXCEEDED: "单笔成本超限，已拒绝",
+        DAILY_BUDGET_EXCEEDED: "今日代付额度已用完，请明天再试",
+        RATE_LIMIT_IP: "本 IP 请求过于频繁（10 分钟限 1 次）",
+        RATE_LIMIT_WALLET: "该钱包今日发射次数已达上限（3 次）",
+        BUSY: "服务繁忙，请稍后重试",
+      };
+      showErr(map[data.error] || data.error || "发射失败", 8000);
+      return;
+    }
+
+    // 成功：显示真实结果
+    document.getElementById("txSummary").textContent = `上线 FLAP · ${payload.tokenType === "tax" ? "税收模式" : "零税模式"} · 创建者 ${payload.userAddress.slice(0, 6)}…`;
+    document.getElementById("txTokenAddr").textContent = data.token || "—";
+    document.getElementById("txHashLink").href = `${data.explorer || "https://bscscan.com"}/tx/${data.txHash}`;
+    document.getElementById("txHashText").textContent = data.txHash.slice(0, 10) + "…" + data.txHash.slice(-6);
+    document.getElementById("txFlapLink").href = data.flapUrl || `https://flap.sh/bnb/${data.token}`;
+    document.getElementById("txDemoNote").style.display = "none"; // 真实结果，去掉演示标注
+    if (logoDataUrl) {
+      const img = document.getElementById("txLogo");
+      img.src = logoDataUrl;
+      img.style.display = "block";
+    }
+    txBox.style.display = "block";
+    txBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    loadBoard(); // 刷新看板
+  } catch (e) {
+    showErr("请求失败：" + (e.message || e), 8000);
+  } finally {
+    submitting = false;
+    launchBtn.disabled = false;
+    launchBtn.style.opacity = 1;
+    launchBtn.textContent = "一键发币 · Launch on FLAP";
+    if (tsWidgetId !== null) window.turnstile.reset(tsWidgetId);
+  }
+}
+
+launchBtn.addEventListener("click", () => {
+  const payload = collectForm();
+  if (!payload) return;
+  startVerification(); // 通过后自动 submitLaunch
+});
+</script>
+
+</body>
+</html>

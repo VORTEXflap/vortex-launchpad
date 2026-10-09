@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>代币详情 — Vortex</title>
+<link rel="icon" type="image/png" href="logo.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --accent: #E0A000; }
+  body { background:#070808; color:#F9FAFB;
+         font-family:"Noto Sans SC","Space Grotesk",Arial,"PingFang SC","Microsoft YaHei",sans-serif; }
+  ::selection { background:var(--accent); color:#000; }
+</style>
+</head>
+<body class="min-h-screen antialiased">
+
+<nav class="mx-auto flex h-16 max-w-[960px] items-center gap-6 px-4 md:px-8">
+  <a href="index.html" class="flex items-center gap-2">
+    <img src="logo.png" alt="VORTEX" class="h-8 w-8 object-contain"/>
+    <span class="text-lg font-bold tracking-widest">VORTEX</span>
+  </a>
+  <div class="hidden items-center gap-5 text-sm text-gray-300 md:flex">
+    <a href="index.html" class="hover:text-white">首页</a>
+    <a href="docs.html" class="hover:text-white">文档</a>
+    <a href="donate.html" class="hover:text-white">捐赠</a>
+    <a href="https://github.com/VORTEXflap/vortex-launchpad" target="_blank" rel="noreferrer" title="GitHub" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#303236] bg-[#070808] text-gray-300 transition hover:border-[#E0A000] hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+    </a>
+    <a href="https://x.com/Vortex_flap" target="_blank" rel="noreferrer" title="X" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#303236] bg-[#070808] text-gray-300 transition hover:border-[#E0A000] hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+  </div>
+</nav>
+
+<main class="mx-auto max-w-[960px] px-4 pb-16 md:px-8">
+
+  <!-- 头部：头像 / 名称 / CA / 创建者 / 链接 -->
+  <div class="rounded-xl border border-[#303236] bg-[#0B0C0C] p-6">
+    <div class="flex flex-wrap items-start gap-4">
+      <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#E0A000] text-xl font-bold text-black" id="tokAvatar">?</span>
+      <div class="min-w-0 flex-1">
+        <h1 class="text-2xl font-bold">$<span id="tokSymbol">…</span></h1>
+        <p class="mt-1 text-sm text-gray-500" id="tokName">…</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a id="flapLink" href="#" target="_blank" rel="noreferrer" class="rounded-md px-4 py-2.5 text-sm font-bold text-black" style="background:var(--accent)">在 FLAP 交易 ↗</a>
+        <a id="shareX" href="#" target="_blank" rel="noreferrer" class="rounded-md border border-[#303236] px-4 py-2.5 text-sm text-gray-300 hover:border-[#E0A000]">分享 X</a>
+      </div>
+    </div>
+
+    <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-500">
+      <span class="flex items-center gap-2">CA
+        <button id="copyCa" type="button" class="rounded-md border border-[#303236] bg-[#070808] px-2 py-1 text-gray-400 hover:border-[#E0A000]" style="color:var(--accent)">0x…</button>
+      </span>
+      <span>创建者 <a id="creatorLink" href="#" class="text-gray-300 underline">0x…</a></span>
+      <a id="scanLink" href="#" target="_blank" rel="noreferrer" class="underline hover:text-gray-300">区块浏览器</a>
+      <a href="donate.html" class="underline hover:text-gray-300">税收详情</a>
+    </div>
+
+    <!-- 价格与统计 -->
+    <div class="mt-5 flex flex-wrap items-end gap-x-8 gap-y-3">
+      <div>
+        <div class="flex items-baseline gap-2">
+          <span id="tokPrice" class="text-3xl font-bold">$0.0₄3583</span>
+          <span id="tokChange" class="text-sm font-semibold text-green-400">+12.34%</span>
+        </div>
+        <p class="mt-1 text-[11px] text-gray-600">以 BNB 计价 · 联合曲线阶段</p>
+      </div>
+      <div class="flex gap-8 text-sm">
+        <div><p class="text-[11px] text-gray-500">市值</p><p id="tokMc" class="mt-0.5 font-semibold">$35.83K</p></div>
+        <div><p class="text-[11px] text-gray-500">流动性</p><p id="tokLiq" class="mt-0.5 font-semibold">$37.71K</p></div>
+        <div><p class="text-[11px] text-gray-500">持有人</p><p id="tokHolders" class="mt-0.5 font-semibold">1,259</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- K线图 -->
+  <div class="mt-4 rounded-xl border border-[#303236] bg-[#0B0C0C] p-4">
+    <div class="flex items-center justify-between px-1">
+      <div class="flex gap-2 text-xs">
+        <button type="button" class="tf-btn rounded-md px-2 py-1" style="background:var(--accent);color:#000">15m</button>
+        <button type="button" class="tf-btn rounded-md border border-[#303236] px-2 py-1 text-gray-400">1H</button>
+        <button type="button" class="tf-btn rounded-md border border-[#303236] px-2 py-1 text-gray-400">4H</button>
+      </div>
+      <span class="text-[10px] text-gray-600">USD / <span id="chartPair">$?</span> · 数据接入中</span>
+    </div>
+    <canvas id="kline" class="mt-3 w-full" height="260"></canvas>
+  </div>
+
+  <!-- 实时成交 -->
+  <div class="mt-4 rounded-xl border border-[#303236] bg-[#0B0C0C] p-4">
+    <div class="flex items-center justify-between px-1">
+      <h3 class="text-sm font-bold">成交记录</h3>
+      <span class="flex items-center gap-1.5 text-[10px]" style="color:var(--accent)">
+        <span class="h-1.5 w-1.5 animate-pulse rounded-full" style="background:var(--accent)"></span>实时
+      </span>
+    </div>
+    <table class="mt-3 w-full text-xs">
+      <thead>
+        <tr class="text-left text-gray-600">
+          <th class="py-2 font-normal">方向</th>
+          <th class="py-2 text-right font-normal">价格</th>
+          <th class="py-2 text-right font-normal">数量</th>
+          <th class="py-2 text-right font-normal">金额(USD)</th>
+          <th class="py-2 text-right font-normal">时间</th>
+        </tr>
+      </thead>
+      <tbody id="trades"></tbody>
+    </table>
+  </div>
+
+  <p class="mt-6 text-center text-[11px] leading-relaxed text-gray-600">
+    项目起飞后，欢迎<a href="donate.html" class="underline" style="color:var(--accent)">向开发者互助基金捐赠</a>一次发射成本，让下一位 DEV 零成本出发。
+  </p>
+</main>
+
+<footer class="border-t border-[#1A1B1D] py-8 text-center text-xs text-gray-600">
+  <div class="flex flex-wrap items-center justify-center gap-5">
+    <a href="index.html" class="hover:text-gray-400">首页</a>
+    <a href="docs.html" class="hover:text-gray-400">文档</a>
+    <a href="donate.html" class="hover:text-gray-400">捐赠</a>
+    <a href="https://x.com/Vortex_flap" target="_blank" rel="noreferrer" class="hover:text-gray-400">X</a>
+    <a href="https://github.com/VORTEXflap/vortex-launchpad" target="_blank" rel="noreferrer" class="hover:text-gray-400">GitHub</a>
+  </div>
+  <p class="mt-3">Vortex · The FLAP Fee-Sponsor Launchpad on BSC</p>
+</footer>
+
+<script>
+// 从看板跳转进来：?addr=0x…&name=…&symbol=…
+const q = new URLSearchParams(location.search);
+const addr = q.get("addr") || "";
+const name = q.get("name") || "未知代币";
+const symbol = (q.get("symbol") || "?").toUpperCase();
+const ca = addr || "0x0000000000000000000000000000000000007777";
+
+document.title = "$" + symbol + " · " + name + " — Vortex";
+document.getElementById("tokAvatar").textContent = symbol[0] || "?";
+document.getElementById("tokSymbol").textContent = symbol;
+document.getElementById("tokName").textContent = name;
+document.getElementById("chartPair").textContent = "$" + symbol;
+document.getElementById("copyCa").textContent = ca.slice(0, 6) + "..." + ca.slice(-4);
+document.getElementById("creatorLink").textContent = "0x" + [...symbol].map(c => c.charCodeAt(0).toString(16)).join("").slice(0, 6) + "..." + ca.slice(-4);
+if (addr) {
+  document.getElementById("flapLink").href = "https://flap.sh/bnb/" + addr;
+  // 区块浏览器链接按链动态取（主网 bscscan / 测试网 testnet.bscscan）
+  const apiBase = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:8080" : location.origin;
+  fetch(apiBase + "/api/health").then(r => r.json()).then(d => {
+    if (d && d.explorer) document.getElementById("scanLink").href = d.explorer + "/address/" + addr;
+  }).catch(() => {
+    document.getElementById("scanLink").href = "https://bscscan.com/address/" + addr;
+  });
+  document.getElementById("shareX").href = "https://x.com/intent/post?text=" + encodeURIComponent("在 @flapdotsh 上购买了 $" + symbol + " (" + name + ")\nCA: " + addr);
+}
+
+// ---------- 行情图表（数据接入中） ----------
+const cv = document.getElementById("kline");
+const ctx = cv.getContext("2d");
+function drawChartPlaceholder() {
+  const W = (cv.width = cv.clientWidth), H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = "#303236";
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(10, H / 2); ctx.lineTo(W - 10, H / 2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "#6B7280";
+  ctx.font = "13px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("行情图表接入中 · 待对接 FLAP 报价接口", W / 2, H / 2 - 12);
+  ctx.textAlign = "start";
+}
+window.addEventListener("resize", drawChartPlaceholder);
+drawChartPlaceholder();
+
+// 头部统计（模拟）
+// 行情数据接入中（待对接 FLAP 报价接口）
+document.getElementById("tokPrice").textContent = "—";
+document.getElementById("tokChange").textContent = "";
+document.getElementById("tokMc").textContent = "—";
+document.getElementById("tokLiq").textContent = "—";
+document.getElementById("tokHolders").textContent = "—";
+
+// ---------- 成交记录（数据接入中） ----------
+document.getElementById("trades").innerHTML =
+  '<tr><td colspan="5" class="py-10 text-center text-xs text-gray-500">成交记录接入中 · 待对接 FLAP 交易数据</td></tr>';
+
+// 复制 CA
+document.getElementById("copyCa").addEventListener("click", () => {
+  navigator.clipboard && navigator.clipboard.writeText(ca);
+  const btn = document.getElementById("copyCa");
+  btn.textContent = "已复制";
+  setTimeout(() => (btn.textContent = ca.slice(0, 6) + "..." + ca.slice(-4)), 1500);
+});
+</script>
+</body>
+</html>

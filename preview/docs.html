@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Vortex 白皮书 — The Gasless Autonomous Launchpad on BSC</title>
+<link rel="icon" type="image/png" href="logo.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  :root { --accent: #E0A000; }
+  body { background:#070808; color:#F9FAFB;
+         font-family:"Noto Sans SC","Space Grotesk",Arial,"PingFang SC","Microsoft YaHei",sans-serif; }
+  ::selection { background:var(--accent); color:#000; }
+  .glow { background: radial-gradient(ellipse 55% 42% at 50% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 72%); }
+  pre { background:#0B0C0C; border:1px solid #303236; border-radius:8px; padding:14px 16px; font-size:12px; line-height:1.6; overflow-x:auto; color:#9CA3AF; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; color:var(--accent); font-weight:600; border-bottom:1px solid #303236; padding:8px 12px; white-space:nowrap; }
+  td { border-bottom:1px solid #1A1B1D; padding:8px 12px; color:#D1D5DB; vertical-align:top; }
+  h2 { font-size:20px; font-weight:800; margin-top:36px; color:#fff; }
+  h3 { font-size:15px; font-weight:700; margin-top:22px; color:var(--accent); }
+  p, li { color:#9CA3AF; font-size:14px; line-height:1.8; }
+  li { margin-top:4px; }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- 顶部导航 -->
+<nav class="mx-auto flex h-16 max-w-[1440px] items-center gap-6 px-4 md:px-8">
+  <a href="index.html" class="flex items-center gap-2">
+    <img src="logo.png" alt="VORTEX" class="h-8 w-8 object-contain"/>
+    <span class="text-lg font-bold tracking-widest">VORTEX</span>
+  </a>
+  <div class="hidden items-center gap-5 text-sm text-gray-300 md:flex">
+    <a href="index.html" class="hover:text-white">首页</a>
+    <span class="coming-soon cursor-not-allowed text-gray-600" data-name="商店" title="暂未开放">商店</span>
+    <span class="coming-soon cursor-not-allowed text-gray-600" data-name="锁仓" title="暂未开放">锁仓</span>
+    <a href="docs.html" style="color:var(--accent)">文档</a>
+  </div>
+  <div class="ml-auto flex items-center gap-2">
+    <button class="flex items-center gap-1.5 rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm">
+      <span class="flex h-4 w-4 items-center justify-center rounded-full bg-[#F0B90B] text-[9px] font-bold text-black">B</span>
+      BSC
+    </button>
+    <button class="hidden rounded-md border border-[#303236] bg-[#070808] px-3 py-1.5 text-sm sm:block">中文</button>
+    <a href="https://github.com/VORTEXflap/vortex-launchpad" target="_blank" rel="noreferrer" title="GitHub" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#303236] bg-[#070808] text-gray-300 transition hover:border-[#E0A000] hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+    </a>
+    <a href="https://x.com/Vortex_flap" target="_blank" rel="noreferrer" title="X" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#303236] bg-[#070808] text-gray-300 transition hover:border-[#E0A000] hover:text-white">
+      <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <button class="rounded-md px-3 py-1.5 text-sm font-semibold text-black" style="background:var(--accent)">连接钱包</button>
+  </div>
+</nav>
+
+<div class="glow">
+<header class="mx-auto max-w-[960px] px-4 pb-8 pt-12 text-center md:px-8">
+  <p class="text-xs font-semibold uppercase tracking-[0.35em]" style="color:var(--accent)">Vortex Whitepaper</p>
+  <h1 class="mt-4 text-4xl font-black tracking-tight md:text-5xl">Vortex 白皮书</h1>
+  <p class="mt-4 text-base text-gray-400">0 手续费 · 代付 FLAP 创建费 · 平台代币税费驱动</p>
+  <p class="mt-2 text-xs text-gray-600">版本 v1.0 ｜ 2026-10-08 ｜ BNB Smart Chain</p>
+</header>
+</div>
+
+<main class="mx-auto max-w-[960px] px-4 pb-16 md:px-8">
+
+<h2>1. 摘要</h2>
+<p>Vortex 是 FLAP 的手续费代付网关。创作者在 Vortex 填写表单（名称、符号、描述、Logo 与发射参数），由 Vortex 热钱包代付 FLAP 创建手续费（约 0.001 BNB）并调用 FLAP Portal 合约完成上链——代币最终上线 FLAP 平台交易，创作者全程 0 手续费、0 Gas、无需前置打款。</p>
+<p>Vortex 的经济模型建立在<strong style="color:#fff">双闭环费用引擎</strong>之上：</p>
+<ul>
+  <li><strong style="color:var(--accent)">第一闭环 · 代币自偿</strong>：每枚新发行代币的开盘交易税 / 手续费自动归集，优先偿还中继器垫付的发射费用（Gas 与部署成本）；债务清偿后，该代币税率永久归零。</li>
+  <li><strong style="color:var(--accent)">第二闭环 · 平台燃料</strong>：Vortex 发行平台代币 <strong style="color:var(--accent)">VX</strong>。VX 交易产生的税费统一注入发射金库（Launch Treasury），作为承担发射台上所有代币发射费用的资金来源——包括中继器 Gas 垫付、无人交易代币的沉没成本兜底、以及生态激励。</li>
+</ul>
+<p>一句话概括：<strong style="color:#fff">平台代币的税费，就是发射台运转的燃料。</strong>发射越多，平台代币的交易规模越大，金库越雄厚，发射成本越低，最终让每一枚新代币都能「零税率、零手续费」出生。</p>
+
+<h2>2. 背景与痛点</h2>
+<p>在 BSC 上从零创建一枚代币并开池，通常需要：</p>
+<ul>
+  <li><strong style="color:#fff">Gas 门槛</strong>：部署合约、创建底池、管理流动性都需要持有 BNB 并支付 Gas，新用户往往被挡在门外；</li>
+  <li><strong style="color:#fff">前置收费</strong>：传统发射台收取固定创建费（0.1–1 BNB 不等），代币尚未交易、项目尚未验证，费用已先发生；</li>
+  <li><strong style="color:#fff">沉没成本</strong>：若代币上线后无人交易，创建者损失全部创建费用；</li>
+  <li><strong style="color:#fff">狙击风险</strong>：开盘瞬间的机器人抢跑（挖、提、卖）损害早期参与者利益；</li>
+  <li><strong style="color:#fff">流动性冷启动</strong>：新代币无底池、无深度，开盘即死。</li>
+</ul>
+<p>Vortex 的对策：</p>
+<table>
+  <tr><th>痛点</th><th>Vortex 方案</th></tr>
+  <tr><td>Gas 门槛</td><td>EIP-712 签名发射，Gas 由中继器代付，创作者 0 Gas</td></tr>
+  <tr><td>前置收费</td><td>费用后置：从代币交易中回收，发射前不收取任何费用</td></tr>
+  <tr><td>沉没成本</td><td>发射金库兜底；无人交易时代币成本由平台吸收，创作者零损失</td></tr>
+  <tr><td>狙击风险</td><td>防「挖、提、卖」保护期，开盘窗口内禁止卖出</td></tr>
+  <tr><td>流动性冷启动</td><td>内置联合曲线，虚拟储备开盘，无需初始流动性资金</td></tr>
+</table>
+
+<h2>3. 平台架构</h2>
+<table>
+  <tr><th>层</th><th>技术</th><th>职责</th></tr>
+  <tr><td>前端</td><td>Next.js 14 + TailwindCSS</td><td>发币表单、发射模式选择、实时看板</td></tr>
+  <tr><td>中继器</td><td>Node.js Relayer</td><td>Turnstile 人机校验、速率限制、代付创建费、调用 FLAP Portal 上链</td></tr>
+  <tr><td>上链合约</td><td>FLAP Portal（newTokenV6）</td><td>部署代币与联合曲线、税收分配、迁移 DEX（FLAP 官方协议）</td></tr>
+</table>
+<p>上链核心为 FLAP 官方 Portal 合约（主网 0xe2cE6a… / 测试网 0x5bEaca…），Vortex 不部署自有发射合约。<br/>（备注：<span class="rounded border border-[#303236] bg-[#0B0C0C] px-1.5 py-0.5 text-xs" style="color:var(--accent)">VortexFactory.sol</span>（EIP-712 验签工厂）与内嵌的 <span class="rounded border border-[#303236] bg-[#0B0C0C] px-1.5 py-0.5 text-xs" style="color:var(--accent)">VortexToken.sol</span>（ERC-20 + 恒定乘积联合曲线）。</p>
+
+<h2>4. Gasless Engine：签名即发射</h2>
+<pre>创作者填写表单（名称/符号/描述/Logo/发射模式/税率/分配/保护期）
+        │
+        ▼
+Cloudflare Turnstile 人机验证（防脚本刷单）
+        │
+        ▼
+Vortex 中继器校验：Turnstile → 速率限制（IP 10 分钟 1 次 / 钱包每日 3 次）
+        │
+        ▼
+热钱包代付创建费（约 0.001 BNB），磨盐命中地址后缀（7777/8888）
+        │
+        ▼
+调用 FLAP Portal newTokenV6() 上链
+        │
+        ▼
+代币上线 FLAP：https://flap.sh/bnb/{token}</pre>
+<p><strong style="color:#fff">风控体系</strong>：</p>
+<ul>
+  <li>Turnstile 人机验证，阻断脚本批量发币；</li>
+  <li>同一 IP 每 10 分钟限发 1 次，同一钱包每日上限 3 次；</li>
+  <li>签名 30 分钟过期，链上 Nonce 防重放；</li>
+  <li>保留 CA 模式下，发布参数与保留时不一致将被合约拒绝。</li>
+</ul>
+
+<h2>5. 发射模式</h2>
+<table>
+  <tr><th>launchMode</th><th>模式</th><th>流程</th><th>费用机制</th></tr>
+  <tr><td style="color:var(--accent)">0</td><td>税收 · 内盘曲线</td><td>一次签名直接发射</td><td>买/卖税可配 0–10%，偿还 Gas 债务，债清归零</td></tr>
+  <tr><td style="color:var(--accent)">1</td><td>零税发射</td><td>一次签名直接发射</td><td>0 手续费交易；0.3% 曲线 LP 手续费偿还债务，债清归零</td></tr>
+  <tr><td style="color:var(--accent)">2</td><td>税收 · 保留 CA</td><td>先锁定可预测合约地址，预热后发布</td><td>同模式 0</td></tr>
+  <tr><td style="color:var(--accent)">3</td><td>零税 · 保留 CA</td><td>先锁定可预测合约地址，预热后发布</td><td>同模式 1</td></tr>
+</table>
+<p><strong style="color:#fff">附加可选配置</strong>：</p>
+<ul>
+  <li>买/卖税率：0–10% 滑块，仅在税收模式下生效；</li>
+  <li>防「挖、提、卖」保护期：关闭 / 5 / 15 / 30 分钟（合约上限 30 天），期间禁止卖出；</li>
+  <li>保留 CA 预发射：通过 Create2 提前锁定可预测的代币合约地址，社群预热后择时发布；</li>
+  <li>支付代币：当前支持 BNB 计价；90+ 股票代币计价池（英伟达 NVDAB、台积电 TSMB、特斯拉 TSLAB、标普 500 SPYB、纳斯达克 100 QQQB、SpaceX SPCXB、小米/腾讯/泡泡玛特封装股、半导体 3 倍杠杆 ETF 等）已接入选择器，链上化随路线图推进。</li>
+</ul>
+
+<h2>6. 费用闭环（核心经济模型）</h2>
+
+<h3>6.1 第一闭环：代币自偿</h3>
+<pre>中继器垫付 BNB 发射
+      │
+      ▼
+合约记录该代币 Gas 债务（gasDebt）
+      │
+      ▼
+代币每笔交易按模式抽税/手续费 → creditFee 自动归还中继器
+      │
+      ▼
+债务清偿 → 合约调用 disableFees → 税率永久归零</pre>
+<p>项目成功、交易活跃：发射费用由代币自身交易税费快速偿还，创建者全程零支出；项目冷清、无人交易：垫付成本成为平台沉没成本——<strong style="color:#fff">由第二闭环的发射金库兜底</strong>，创作者依旧零损失。</p>
+
+<h3>6.2 第二闭环：平台代币燃料（本白皮书核心）</h3>
+<p>Vortex 发行平台代币 <strong style="color:var(--accent)">VX</strong>，将其交易税费转化为发射台的公共燃料。</p>
+<p><strong style="color:#fff">VX 税费的用途（发射金库 Launch Treasury）</strong>：</p>
+<ul>
+  <li><strong style="color:#fff">垫付全平台发射费用</strong>：持续补充中继器热钱包，让所有代币发射的 Gas 与部署成本由金库承担；</li>
+  <li><strong style="color:#fff">沉没成本兜底</strong>：覆盖「无人交易代币」的垫付损失，保证「签名即发射、失败零成本」的承诺始终成立；</li>
+  <li><strong style="color:#fff">生态激励</strong>：优质项目税费返还、创作者补贴、安全审计预算；</li>
+  <li><strong style="color:#fff">金库升级路径</strong>：当金库储备充足，新发射代币从「债后归零」升级为「出生即零税」——发射台进入完全免费时代。</li>
+</ul>
+<pre>            ┌──────────────────────────────┐
+  交易 VX ──▶│  VX 买卖税费  ──────▶ 发射金库 │──▶ 补充热钱包 / 兜底 / 激励
+            └──────────────────────────────┘
+                          │ 垫付 Gas
+                          ▼
+            ┌──────────────────────────────┐
+  创作者签名─▶│  中继器（热钱包）──▶ 部署新代币 │
+            └──────────────────────────────┘
+                          ▲
+          新代币开盘税费自动偿还（第一闭环）─┘</pre>
+<p><strong style="color:#fff">飞轮效应</strong>：发射台交易量增长 → VX 交易活跃 → 税费流入金库 → 金库更强 → 可支持更多「零税发射」→ 吸引更多创作者与交易者 → 交易量再增长。发射费用从「每个项目自己掏」变成「全平台共同供养」，成本随规模递减直至趋近于零。</p>
+
+<h2>7. VX 平台代币经济模型</h2>
+<p>以下为建议参数，正式名称与数值在部署前可调整。</p>
+<table>
+  <tr><th>属性</th><th>设定</th></tr>
+  <tr><td>名称 / 符号</td><td>VX（Vortex）</td></tr>
+  <tr><td>链</td><td>BNB Smart Chain</td></tr>
+  <tr><td>总供应</td><td>1,000,000,000 VX</td></tr>
+  <tr><td>定位</td><td>发射台燃料 + 治理凭证</td></tr>
+</table>
+<p><strong style="color:#fff">分配方案</strong>：</p>
+<table>
+  <tr><th>用途</th><th>比例</th><th>说明</th></tr>
+  <tr><td>发射金库</td><td style="color:var(--accent)">40%</td><td>垫付与兜底全平台发射费用，多签管理</td></tr>
+  <tr><td>初始流动性</td><td>20%</td><td>建立 VX/BNB 交易对</td></tr>
+  <tr><td>生态激励</td><td>15%</td><td>创作者补贴、优质项目返还、活动奖励</td></tr>
+  <tr><td>团队</td><td>15%</td><td>线性解锁，长期绑定</td></tr>
+  <tr><td>社区空投</td><td>10%</td><td>早期创作者与交易者激励</td></tr>
+</table>
+<p><strong style="color:#fff">交易税费（建议值，部署前可调）</strong>：</p>
+<table>
+  <tr><th>环节</th><th>税率</th><th>去向</th></tr>
+  <tr><td>买入</td><td style="color:var(--accent)">3%</td><td>2% 发射金库 · 0.5% 销毁 · 0.5% 流动性</td></tr>
+  <tr><td>卖出</td><td style="color:var(--accent)">3%</td><td>2% 发射金库 · 0.5% 销毁 · 0.5% 流动性</td></tr>
+</table>
+<p><strong style="color:#fff">VX 价值逻辑</strong>：持续销毁通缩，供应量随平台交易规模收缩；发射金库余额链上可查，燃料规模透明公开；金库规模扩大直接转化为更低发射成本与更多免费发射，吸引交易量回流 VX；后续版本 VX 可用于发射费用减免、保留 CA 优先权与协议治理投票。</p>
+
+<h2>8. 安全与风控</h2>
+<table>
+  <tr><th>维度</th><th>措施</th></tr>
+  <tr><td>签名安全</td><td>EIP-712 结构化签名，链上 Nonce + 30 分钟过期防重放</td></tr>
+  <tr><td>中继器安全</td><td>热钱包资金隔离与限额，私钥托管于密钥管理服务（KMS），生产环境每日限流</td></tr>
+  <tr><td>防刷单</td><td>Turnstile 人机验证 + IP/钱包双维度速率限制</td></tr>
+  <tr><td>防狙击</td><td>防「挖、提、卖」保护期，开盘窗口禁止卖出</td></tr>
+  <tr><td>合约安全</td><td>基于 OpenZeppelin 标准库；正式上线前完成第三方审计</td></tr>
+  <tr><td>金库安全</td><td>发射金库采用多签钱包管理，大额支出需多方确认</td></tr>
+</table>
+
+<h2>9. 路线图</h2>
+<table>
+  <tr><th>阶段</th><th>内容</th><th>状态</th></tr>
+  <tr><td>Phase 1</td><td>Gasless Engine：签名发射、四种发射模式、可配税率、保护期、保留 CA、实时看板</td><td>已实现（测试网部署中）</td></tr>
+  <tr><td>Phase 2</td><td>发行平台代币 VX，上线发射金库与税费归集合约，实现「平台币税费承担发射费用」闭环</td><td>本文档定义</td></tr>
+  <tr><td>Phase 3</td><td>股票代币计价池链上化（90+ 股票池），支持 USDT/USDC 等计价发射</td><td>规划中</td></tr>
+  <tr><td>Phase 4</td><td>金库多签 → 社区 DAO 治理，发射参数与税费分配由 VX 持有者投票决定</td><td>规划中</td></tr>
+</table>
+
+<h2>10. 风险提示与免责声明</h2>
+<ul>
+  <li><strong style="color:#fff">合约风险</strong>：智能合约可能存在未发现的漏洞，平台在正式上线前将完成第三方安全审计，但审计不能消除全部风险；</li>
+  <li><strong style="color:#fff">市场风险</strong>：新发行代币价格波动剧烈，可能归零，请参与者自行评估风险；</li>
+  <li><strong style="color:#fff">监管风险</strong>：不同司法辖区对代币发行的监管态度不同，创作者应确保其行为符合当地法律；</li>
+  <li><strong style="color:#fff">技术风险</strong>：区块链网络拥堵、中继器故障可能导致发射延迟；发射金库资金规模有限，极端情况下兜底能力存在上限；</li>
+  <li><strong style="color:#fff">本白皮书仅用于介绍 Vortex 平台机制与 VX 代币经济模型，不构成任何投资建议或证券发行要约。</strong>参数与路线图可能随开发进展调整。</li>
+</ul>
+
+<p class="mt-12 border-t border-[#1A1B1D] pt-6 text-center text-sm" style="color:var(--accent)">Vortex — Zero Fee. Instant Launch.</p>
+
+</main>
+
+<footer class="border-t border-[#1A1B1D] py-8 text-center text-xs text-gray-600">
+  <div class="flex flex-wrap items-center justify-center gap-5">
+    <a href="index.html" class="hover:text-gray-400">首页</a>
+    <a href="docs.html" class="hover:text-gray-400">文档</a>
+    <a href="https://x.com/Vortex_flap" target="_blank" rel="noreferrer" class="hover:text-gray-400">X</a>
+    <a href="https://github.com/VORTEXflap/vortex-launchpad" target="_blank" rel="noreferrer" class="hover:text-gray-400">GitHub</a>
+    <a href="#" class="hover:text-gray-400">条款与条件</a>
+    <a href="#" class="hover:text-gray-400">联系我们</a>
+  </div>
+  <p class="mt-3">Vortex · The Gasless Autonomous Launchpad on BSC</p>
+</footer>
+
+<script>
+// ---------- 暂未开放入口提示 ----------
+document.querySelectorAll(".coming-soon").forEach((el) => {
+  el.addEventListener("click", () => {
+    let tip = document.getElementById("comingTip");
+    if (!tip) {
+      tip = document.createElement("div");
+      tip.id = "comingTip";
+      tip.className = "fixed left-1/2 top-6 z-[200] -translate-x-1/2 rounded-lg border px-4 py-2.5 text-xs shadow-lg";
+      tip.style.borderColor = "var(--accent)";
+      tip.style.background = "#0B0C0C";
+      tip.style.color = "var(--accent)";
+      document.body.appendChild(tip);
+    }
+    tip.textContent = "「" + el.dataset.name + "」暂未开放，敬请期待";
+    tip.style.display = "block";
+    clearTimeout(tip._t);
+    tip._t = setTimeout(() => (tip.style.display = "none"), 1800);
+  });
+});
+</script>
+</body>
+</html>
