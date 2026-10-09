@@ -48,26 +48,27 @@ FLAP 的 `TokenCreated.creator` 记录的是**交易发起者**，无法用参�
 
 ## 架构
 
-```mermaid
-flowchart LR
-    U["创作者"]:::user -->|"1. 填表 + Turnstile"| F["Vortex 前端"]:::fe
-    F -->|"2. 提交请求"| R["中继器<br/>(Node.js)"]:::be
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          🕶️  隐私发射 · 0 Gas                            │
+│                        创建者链上显示为 Vortex 合约                        │
+└─────────────────────────────────────────────────────────────────────────┘
 
-    R -->|"3a. 代付 Gas"| C["VortexRelayer<br/>(已验证合约)"]:::sc
-    C -->|"4. 调用"| P["FLAP Portal"]:::flap
+  创作者 ──填表+Turnstile──▶ 中继器 ──代付 Gas──▶ VortexRelayer ──▶ FLAP Portal ──▶ 代币上线
+   (0 花费)                 (Node.js)            (已验证合约)         (官方协议)      flap.sh
 
-    U -.->|"3b. 自己签名发交易"| P
-    R -.->|"5. Gas 全额返还"| U
 
-    P -->|"6. 链上部署"| T["代币 + 联合曲线"]:::token
-    T -->|"上线"| FLAP["flap.sh/bnb/..."]:::flap
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       👤  自己创建 · Gas 全额返还                          │
+│                        创建者链上显示为你本人                              │
+└─────────────────────────────────────────────────────────────────────────┘
 
-    classDef user fill:#0C0D10,stroke:#F0B90B,color:#F9FAFB
-    classDef fe fill:#0C0D10,stroke:#F0B90B,color:#F9FAFB
-    classDef be fill:#0C0D10,stroke:#F0B90B,color:#F9FAFB
-    classDef sc fill:#F0B90B,stroke:#F0B90B,color:#000
-    classDef flap fill:#0C0D10,stroke:#84888C,color:#F9FAFB
-    classDef token fill:#0C0D10,stroke:#3DA639,color:#F9FAFB
+  创作者 ──填表+Turnstile──▶ 中继器 ──返回 calldata──▶ 创作者自己签名发交易
+     ▲                       (磨盐+上传 LOGO)                  │
+     │                                                        ▼
+     │                                              FLAP Portal ──▶ 代币上线
+     │                                                        │
+     └──── 中继器校验交易合法性后，经合约把 Gas 全额退还 ◀────────┘
 ```
 
 **流程说明**
