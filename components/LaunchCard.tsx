@@ -320,7 +320,7 @@ export default function LaunchCard() {
                 setName(e.target.value);
                 resetSecurity();
               }}
-              placeholder="例如：Vortex Dog"
+              placeholder="例如：Vortex"
               className={inputCls}
             />
           </label>
@@ -333,13 +333,13 @@ export default function LaunchCard() {
                   setSymbol(e.target.value);
                   resetSecurity();
                 }}
-                placeholder="VDG"
+                placeholder="V"
                 className={`${inputCls} uppercase`}
               />
             </label>
             <label className="block">
               <span className={fieldCls}>封面图片 / Logo</span>
-              <span className="mt-1.5 flex h-[46px] w-[92px] cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-[#303236] bg-[#070808] text-center text-[10px] text-gray-500 transition hover:border-[#E0A000]">
+              <span className="mt-1.5 flex h-20 w-20 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-[#303236] bg-[#070808] text-center text-[10px] text-gray-500 transition hover:border-[#E0A000]">
                 {logoPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={logoPreview} alt="logo preview" className="h-full w-full object-cover" />
